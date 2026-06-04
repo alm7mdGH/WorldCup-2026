@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA World Cup 2026 — Riyadh Schedule</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a38;
+    --accent: #c9a227;
+    --accent2: #e8c547;
+    --red: #e63946;
+    --green: #2ec4b6;
+    --blue: #4cc9f0;
+    --text: #f0eee8;
+    --muted: #888896;
+    --late-night: #ff6b6b;
+    --evening: #ff9f43;
+    --afternoon: #2ec4b6;
+    --morning: #4cc9f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: direction 0.2s;
+  }
+
+  body.ar {
+    font-family: 'Tajawal', sans-serif;
+    direction: rtl;
+  }
+
+  /* ── LANG TOGGLE ── */
+  .lang-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 28px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+
+  body.ar .lang-bar { justify-content: flex-start; }
+
+  .lang-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .lang-toggle {
+    display: flex;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .lang-btn {
+    padding: 5px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .lang-btn.active {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .lang-btn:first-child { font-family: 'DM Sans', sans-serif; }
+  .lang-btn:last-child  { font-family: 'Tajawal', sans-serif; font-size: 14px; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    padding: 60px 40px 50px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,162,39,0.15) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(201,162,39,0.04) 39px, rgba(201,162,39,0.04) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(201,162,39,0.04) 39px, rgba(201,162,39,0.04) 40px);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    opacity: 0.9;
+  }
+
+  body.ar .hero-eyebrow { letter-spacing: 0.05em; font-size: 13px; }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 9vw, 100px);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  body.ar .hero h1 {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 800;
+    font-size: clamp(40px, 7vw, 80px);
+    line-height: 1.1;
+  }
+
+  .hero h1 span { color: var(--accent); display: block; }
+
+  .hero-sub {
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  body.ar .hero-sub { letter-spacing: 0; font-size: 15px; }
+  .hero-sub strong { color: var(--accent2); }
+
+  /* ── LEGEND ── */
+  .legend {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+
+  body.ar .legend-item { letter-spacing: 0; font-size: 12px; text-transform: none; }
+
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── NAV ── */
+  .groups-nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    padding: 16px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .group-pill {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+  }
+
+  body.ar .group-pill { font-family: 'Tajawal', sans-serif; letter-spacing: 0; font-size: 13px; }
+
+  .group-pill:hover, .group-pill.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+
+  /* ── CONTAINER ── */
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 40px 80px;
+  }
+
+  /* ── GROUP SECTION ── */
+  .group-section { margin-bottom: 56px; }
+
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .group-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--accent);
+    letter-spacing: 0.03em;
+  }
+
+  body.ar .group-badge {
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+  }
+
+  /* ── MATCH CARD ── */
+  .matches-grid { display: grid; gap: 10px; }
+
+  .match-card {
+    display: grid;
+    grid-template-columns: 140px 1fr auto;
+    align-items: center;
+    gap: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+
+  body.en .match-card:hover { transform: translateX(4px); border-color: var(--accent); }
+  body.ar .match-card:hover { transform: translateX(-4px); border-color: var(--accent); }
+
+  .match-card::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 10px 0 0 10px;
+  }
+
+  body.en .match-card::before { left: 0; border-radius: 10px 0 0 10px; }
+  body.ar .match-card::before { right: 0; left: auto; border-radius: 0 10px 10px 0; }
+
+  .match-card.time-morning::before   { background: var(--morning); }
+  .match-card.time-afternoon::before { background: var(--afternoon); }
+  .match-card.time-evening::before   { background: var(--evening); }
+  .match-card.time-late::before      { background: var(--late-night); }
+  .match-card.time-overnight::before { background: #9b59b6; }
+
+  /* ── TIME COL ── */
+  .time-col { display: flex; flex-direction: column; gap: 3px; }
+
+  .riyadh-time {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    letter-spacing: 0.05em;
+  }
+
+  body.ar .riyadh-time { font-family: 'Tajawal', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: 0; }
+
+  .time-morning   .riyadh-time { color: var(--morning); }
+  .time-afternoon .riyadh-time { color: var(--afternoon); }
+  .time-evening   .riyadh-time { color: var(--evening); }
+  .time-late      .riyadh-time { color: var(--late-night); }
+  .time-overnight .riyadh-time { color: #c39bd3; }
+
+  .time-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  body.ar .time-label { letter-spacing: 0; font-size: 11px; text-transform: none; }
+
+  .time-morning   .time-label { color: var(--morning); }
+  .time-afternoon .time-label { color: var(--afternoon); }
+  .time-evening   .time-label { color: var(--evening); }
+  .time-late      .time-label { color: var(--late-night); }
+  .time-overnight .time-label { color: #c39bd3; }
+
+  .et-time { font-size: 10px; color: rgba(136,136,150,0.6); margin-top: 2px; }
+
+  /* ── MATCH COL ── */
+  .match-col {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .team { display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+  .team-name {
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+
+  body.ar .team-name { font-size: 14px; max-width: 120px; }
+
+  .flag { font-size: 24px; flex-shrink: 0; line-height: 1; }
+
+  .vs-divider {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--muted);
+    flex-shrink: 0;
+    letter-spacing: 0.1em;
+  }
+
+  body.ar .vs-divider { font-family: 'Tajawal', sans-serif; font-weight: 700; letter-spacing: 0; }
+
+  /* ── VENUE COL ── */
+  .venue-col {
+    text-align: right;
+    flex-shrink: 0;
+    min-width: 130px;
+  }
+
+  body.ar .venue-col { text-align: left; }
+
+  .venue-city {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text);
+  }
+
+  body.ar .venue-city { letter-spacing: 0; text-transform: none; font-size: 13px; }
+
+  .venue-country {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  body.ar .venue-country { letter-spacing: 0; text-transform: none; font-size: 11px; }
+
+  /* ── WATCH BADGE ── */
+  .watch-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-top: 4px;
+  }
+
+  body.ar .watch-badge { letter-spacing: 0; text-transform: none; font-size: 10px; }
+
+  .badge-prime { background: rgba(46,196,182,0.15); color: var(--green); border: 1px solid rgba(46,196,182,0.3); }
+  .badge-good  { background: rgba(255,159,67,0.15);  color: var(--evening); border: 1px solid rgba(255,159,67,0.3); }
+  .badge-late  { background: rgba(230,57,70,0.15);   color: var(--red); border: 1px solid rgba(230,57,70,0.3); }
+
+  /* ── GROUP LABEL INLINE ── */
+  .grp-label {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+
+  body.ar .grp-label { letter-spacing: 0; font-size: 12px; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 30px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  body.ar footer { letter-spacing: 0; font-size: 13px; }
+  footer strong { color: var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .hero { padding: 40px 20px 30px; }
+    .groups-nav, .container { padding-left: 16px; padding-right: 16px; }
+    .legend { padding: 16px; }
+    .lang-bar { padding: 10px 16px; }
+
+    .match-card {
+      grid-template-columns: 100px 1fr;
+      grid-template-rows: auto auto;
+      gap: 10px 14px;
+    }
+
+    .venue-col { grid-column: 2; text-align: left; min-width: 0; }
+    body.ar .venue-col { text-align: right; }
+    .team-name { max-width: 90px; }
+    .flag { font-size: 20px; }
+    .riyadh-time { font-size: 22px; }
+    body.ar .riyadh-time { font-size: 18px; }
+  }
+</style>
+</head>
+<body class="en" id="body">
+
+<!-- ── LANG BAR ── -->
+<div class="lang-bar">
+  <span class="lang-label" id="langLabel">Language</span>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btnEn" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" id="btnAr" onclick="setLang('ar')">ع</button>
+  </div>
+</div>
+
+<!-- ── HERO ── -->
+<header class="hero">
+  <div class="hero-eyebrow" id="heroEyebrow">⚽ Your Personal Viewing Guide</div>
+  <h1 id="heroTitle">FIFA World Cup<span>2026</span></h1>
+  <p class="hero-sub" id="heroSub">All Group Stage Matches · Kick-off Times in <strong>Riyadh (AST, UTC+3)</strong> · June 11 – June 27</p>
+</header>
+
+<!-- ── LEGEND ── -->
+<div class="legend" id="legendBar">
+  <div class="legend-item"><div class="dot" style="background:var(--morning)"></div> <span class="leg-morning">Morning (6AM–12PM)</span></div>
+  <div class="legend-item"><div class="dot" style="background:var(--afternoon)"></div> <span class="leg-afternoon">Afternoon (12PM–6PM)</span></div>
+  <div class="legend-item"><div class="dot" style="background:var(--evening)"></div> <span class="leg-evening">Evening (6PM–11PM)</span></div>
+  <div class="legend-item"><div class="dot" style="background:var(--late-night)"></div> <span class="leg-late">Late Night (11PM–3AM)</span></div>
+  <div class="legend-item"><div class="dot" style="background:#9b59b6"></div> <span class="leg-overnight">Overnight (3AM–6AM)</span></div>
+  <div class="legend-item">🟢 <span class="leg-great">Great time</span></div>
+  <div class="legend-item">🟡 <span class="leg-good">Good</span></div>
+  <div class="legend-item">🔴 <span class="leg-tough">Tough</span></div>
+</div>
+
+<!-- ── NAV ── -->
+<nav class="groups-nav" id="groupsNav"></nav>
+
+<!-- ── CONTENT ── -->
+<main class="container" id="mainContainer"></main>
+
+<footer id="footerText">
+  All times in <strong>Riyadh / AST (UTC+3)</strong> · ET + 7 hours · Some late ET games fall on the next Riyadh day
+</footer>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// TRANSLATIONS
+// ─────────────────────────────────────────────────────────────
+const T = {
+  en: {
+    langLabel: 'Language',
+    eyebrow: '⚽ Your Personal Viewing Guide',
+    title: 'FIFA World Cup<span>2026</span>',
+    sub: 'All Group Stage Matches · Kick-off Times in <strong>Riyadh (AST, UTC+3)</strong> · June 11 – June 27',
+    allDates: 'All Dates',
+    group: 'Group',
+    matches1: 'match', matchesN: 'matches',
+    vs: 'VS',
+    morning: '🌤 Morning', afternoon: '☀️ Afternoon', evening: '🌆 Evening', late: '🌙 Late Night', overnight: '😴 Overnight',
+    badgeGreat: '✅ Great time', badgeMorning: '🌅 Morning', badgeLate: '🌙 Late night', badgeOvernight: '😴 Overnight',
+    legMorning: 'Morning (6AM–12PM)', legAfternoon: 'Afternoon (12PM–6PM)', legEvening: 'Evening (6PM–11PM)',
+    legLate: 'Late Night (11PM–3AM)', legOvernight: 'Overnight (3AM–6AM)',
+    legGreat: 'Great time', legGood: 'Good', legTough: 'Tough',
+    footer: 'All times in <strong>Riyadh / AST (UTC+3)</strong> · ET + 7 hours · Some late ET games fall on the next Riyadh day',
+    etLabel: 'ET',
+    // Countries EN
+    teams: {
+      'Mexico':'Mexico','South Africa':'South Africa','South Korea':'South Korea','Czechia':'Czechia',
+      'Canada':'Canada','Bosnia & Herz.':'Bosnia & Herz.','Qatar':'Qatar','Switzerland':'Switzerland',
+      'Brazil':'Brazil','Morocco':'Morocco','Haiti':'Haiti','Scotland':'Scotland',
+      'USA':'USA','Paraguay':'Paraguay','Australia':'Australia','Türkiye':'Türkiye',
+      'Germany':'Germany','Curaçao':'Curaçao','Netherlands':'Netherlands','Japan':'Japan',
+      'Ivory Coast':'Ivory Coast','Ecuador':'Ecuador','Tunisia':'Tunisia','Ukraine':'Ukraine',
+      'Spain':'Spain','Cape Verde':'Cape Verde','Belgium':'Belgium','Egypt':'Egypt',
+      'Saudi Arabia':'Saudi Arabia','Uruguay':'Uruguay','Iran':'Iran','New Zealand':'New Zealand',
+      'France':'France','Senegal':'Senegal','Norway':'Norway','Playoff W2':'Playoff W2',
+      'Argentina':'Argentina','Algeria':'Algeria','Austria':'Austria','Jordan':'Jordan',
+      'Portugal':'Portugal','Playoff W1':'Playoff W1','England':'England','Croatia':'Croatia',
+      'Ghana':'Ghana','Panama':'Panama','Uzbekistan':'Uzbekistan','Colombia':'Colombia',
+    },
+    cities: {
+      'Mexico City':'Mexico City','Guadalajara':'Guadalajara','Toronto':'Toronto','Los Angeles':'Los Angeles',
+      'San Francisco':'San Francisco','New York':'New York','Boston':'Boston','Vancouver':'Vancouver',
+      'Houston':'Houston','Dallas':'Dallas','Philadelphia':'Philadelphia','Monterrey':'Monterrey',
+      'Atlanta':'Atlanta','Seattle':'Seattle','Miami':'Miami','Kansas City':'Kansas City',
+    },
+    days: { Sun:'Sun', Mon:'Mon', Tue:'Tue', Wed:'Wed', Thu:'Thu', Fri:'Fri', Sat:'Sat' },
+    months: { 1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun', 7:'Jul', 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec' },
+  },
+  ar: {
+    langLabel: 'اللغة',
+    eyebrow: '⚽ دليل المشاهدة الشخصي',
+    title: 'كأس العالم FIFA<span>2026</span>',
+    sub: 'جميع مباريات دور المجموعات · مواعيد الانطلاق بتوقيت <strong>الرياض (AST، UTC+3)</strong> · ١١ – ٢٧ يونيو',
+    allDates: 'كل الأيام',
+    group: 'المجموعة',
+    matches1: 'مباراة', matchesN: 'مباريات',
+    vs: 'ضد',
+    morning: '🌤 الصباح', afternoon: '☀️ بعد الظهر', evening: '🌆 المساء', late: '🌙 آخر الليل', overnight: '😴 الفجر',
+    badgeGreat: '✅ وقت ممتاز', badgeMorning: '🌅 الصباح', badgeLate: '🌙 آخر الليل', badgeOvernight: '😴 الفجر',
+    legMorning: 'الصباح (٦ص – ١٢م)', legAfternoon: 'بعد الظهر (١٢م – ٦م)', legEvening: 'المساء (٦م – ١١م)',
+    legLate: 'آخر الليل (١١م – ٣ص)', legOvernight: 'الفجر (٣ص – ٦ص)',
+    legGreat: 'وقت ممتاز', legGood: 'جيد', legTough: 'صعب',
+    footer: 'جميع المواعيد بتوقيت <strong>الرياض / AST (UTC+3)</strong> · فارق ٧ ساعات عن توقيت الساحل الشرقي الأمريكي',
+    etLabel: 'ت.أمريكي',
+    teams: {
+      'Mexico':'المكسيك','South Africa':'جنوب أفريقيا','South Korea':'كوريا الجنوبية','Czechia':'التشيك',
+      'Canada':'كندا','Bosnia & Herz.':'البوسنة','Qatar':'قطر','Switzerland':'سويسرا',
+      'Brazil':'البرازيل','Morocco':'المغرب','Haiti':'هايتي','Scotland':'اسكتلندا',
+      'USA':'الولايات المتحدة','Paraguay':'باراغواي','Australia':'أستراليا','Türkiye':'تركيا',
+      'Germany':'ألمانيا','Curaçao':'كوراساو','Netherlands':'هولندا','Japan':'اليابان',
+      'Ivory Coast':'كوت ديفوار','Ecuador':'الإكوادور','Tunisia':'تونس','Ukraine':'أوكرانيا',
+      'Spain':'إسبانيا','Cape Verde':'الرأس الأخضر','Belgium':'بلجيكا','Egypt':'مصر',
+      'Saudi Arabia':'المملكة العربية السعودية','Uruguay':'أوروغواي','Iran':'إيران','New Zealand':'نيوزيلندا',
+      'France':'فرنسا','Senegal':'السنغال','Norway':'النرويج','Playoff W2':'الفائز 2',
+      'Argentina':'الأرجنتين','Algeria':'الجزائر','Austria':'النمسا','Jordan':'الأردن',
+      'Portugal':'البرتغال','Playoff W1':'الفائز 1','England':'إنجلترا','Croatia':'كرواتيا',
+      'Ghana':'غانا','Panama':'بنما','Uzbekistan':'أوزبكستان','Colombia':'كولومبيا',
+    },
+    cities: {
+      'Mexico City':'مكسيكو سيتي','Guadalajara':'غوادالاخارا','Toronto':'تورنتو','Los Angeles':'لوس أنجلوس',
+      'San Francisco':'سان فرانسيسكو','New York':'نيويورك','Boston':'بوسطن','Vancouver':'فانكوفر',
+      'Houston':'هيوستن','Dallas':'دالاس','Philadelphia':'فيلادلفيا','Monterrey':'مونتيري',
+      'Atlanta':'أتلانتا','Seattle':'سياتل','Miami':'ميامي','Kansas City':'كانساس سيتي',
+    },
+    days: { Sun:'الأحد', Mon:'الاثنين', Tue:'الثلاثاء', Wed:'الأربعاء', Thu:'الخميس', Fri:'الجمعة', Sat:'السبت' },
+    months: { 1:'يناير', 2:'فبراير', 3:'مارس', 4:'أبريل', 5:'مايو', 6:'يونيو', 7:'يوليو', 8:'أغسطس', 9:'سبتمبر', 10:'أكتوبر', 11:'نوفمبر', 12:'ديسمبر' },
+  }
+};
+
+// ─────────────────────────────────────────────────────────────
+// MATCH DATA
+// ─────────────────────────────────────────────────────────────
+const matches = [
+  { group:'A', md:1, etDate:'Jun 11', etTime:'3:00 PM',  home:'Mexico',       homeFlag:'🇲🇽', away:'South Africa', awayFlag:'🇿🇦', city:'Mexico City',   country:'MEX' },
+  { group:'A', md:1, etDate:'Jun 11', etTime:'10:00 PM', home:'South Korea',  homeFlag:'🇰🇷', away:'Czechia',      awayFlag:'🇨🇿', city:'Guadalajara',   country:'MEX' },
+  { group:'B', md:1, etDate:'Jun 12', etTime:'3:00 PM',  home:'Canada',       homeFlag:'🇨🇦', away:'Bosnia & Herz.', awayFlag:'🇧🇦', city:'Toronto',     country:'CAN' },
+  { group:'D', md:1, etDate:'Jun 12', etTime:'9:00 PM',  home:'USA',          homeFlag:'🇺🇸', away:'Paraguay',     awayFlag:'🇵🇾', city:'Los Angeles',   country:'USA' },
+  { group:'B', md:1, etDate:'Jun 13', etTime:'3:00 PM',  home:'Qatar',        homeFlag:'🇶🇦', away:'Switzerland',  awayFlag:'🇨🇭', city:'San Francisco', country:'USA' },
+  { group:'C', md:1, etDate:'Jun 13', etTime:'6:00 PM',  home:'Brazil',       homeFlag:'🇧🇷', away:'Morocco',      awayFlag:'🇲🇦', city:'New York',      country:'USA' },
+  { group:'C', md:1, etDate:'Jun 13', etTime:'9:00 PM',  home:'Haiti',        homeFlag:'🇭🇹', away:'Scotland',     awayFlag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', city:'Boston',       country:'USA' },
+  { group:'D', md:1, etDate:'Jun 13', etTime:'12:00 AM', home:'Australia',    homeFlag:'🇦🇺', away:'Türkiye',      awayFlag:'🇹🇷', city:'Vancouver',     country:'CAN' },
+  { group:'E', md:1, etDate:'Jun 14', etTime:'1:00 PM',  home:'Germany',      homeFlag:'🇩🇪', away:'Curaçao',      awayFlag:'🇨🇼', city:'Houston',       country:'USA' },
+  { group:'F', md:1, etDate:'Jun 14', etTime:'4:00 PM',  home:'Netherlands',  homeFlag:'🇳🇱', away:'Japan',        awayFlag:'🇯🇵', city:'Dallas',        country:'USA' },
+  { group:'E', md:1, etDate:'Jun 14', etTime:'7:00 PM',  home:'Ivory Coast',  homeFlag:'🇨🇮', away:'Ecuador',      awayFlag:'🇪🇨', city:'Philadelphia',  country:'USA' },
+  { group:'F', md:1, etDate:'Jun 14', etTime:'10:00 PM', home:'Tunisia',      homeFlag:'🇹🇳', away:'Ukraine',      awayFlag:'🇺🇦', city:'Monterrey',     country:'MEX' },
+  { group:'H', md:1, etDate:'Jun 15', etTime:'12:00 PM', home:'Spain',        homeFlag:'🇪🇸', away:'Cape Verde',   awayFlag:'🇨🇻', city:'Atlanta',       country:'USA' },
+  { group:'G', md:1, etDate:'Jun 15', etTime:'3:00 PM',  home:'Belgium',      homeFlag:'🇧🇪', away:'Egypt',        awayFlag:'🇪🇬', city:'Seattle',       country:'USA' },
+  { group:'H', md:1, etDate:'Jun 15', etTime:'6:00 PM',  home:'Saudi Arabia', homeFlag:'🇸🇦', away:'Uruguay',      awayFlag:'🇺🇾', city:'Miami',         country:'USA' },
+  { group:'G', md:1, etDate:'Jun 15', etTime:'9:00 PM',  home:'Iran',         homeFlag:'🇮🇷', away:'New Zealand',  awayFlag:'🇳🇿', city:'Los Angeles',   country:'USA' },
+  { group:'I', md:1, etDate:'Jun 16', etTime:'3:00 PM',  home:'France',       homeFlag:'🇫🇷', away:'Senegal',      awayFlag:'🇸🇳', city:'New York',      country:'USA' },
+  { group:'I', md:1, etDate:'Jun 16', etTime:'6:00 PM',  home:'Norway',       homeFlag:'🇳🇴', away:'Playoff W2',   awayFlag:'🏳️', city:'Boston',        country:'USA' },
+  { group:'J', md:1, etDate:'Jun 16', etTime:'9:00 PM',  home:'Argentina',    homeFlag:'🇦🇷', away:'Algeria',      awayFlag:'🇩🇿', city:'Kansas City',   country:'USA' },
+  { group:'J', md:1, etDate:'Jun 16', etTime:'12:00 AM', home:'Austria',      homeFlag:'🇦🇹', away:'Jordan',       awayFlag:'🇯🇴', city:'San Francisco', country:'USA' },
+  { group:'K', md:1, etDate:'Jun 17', etTime:'1:00 PM',  home:'Portugal',     homeFlag:'🇵🇹', away:'Playoff W1',   awayFlag:'🏳️', city:'Houston',       country:'USA' },
+  { group:'L', md:1, etDate:'Jun 17', etTime:'4:00 PM',  home:'England',      homeFlag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', away:'Croatia',      awayFlag:'🇭🇷', city:'Dallas',        country:'USA' },
+  { group:'L', md:1, etDate:'Jun 17', etTime:'7:00 PM',  home:'Ghana',        homeFlag:'🇬🇭', away:'Panama',       awayFlag:'🇵🇦', city:'Toronto',       country:'CAN' },
+  { group:'K', md:1, etDate:'Jun 17', etTime:'10:00 PM', home:'Uzbekistan',   homeFlag:'🇺🇿', away:'Colombia',     awayFlag:'🇨🇴', city:'Mexico City',   country:'MEX' },
+  { group:'A', md:2, etDate:'Jun 18', etTime:'12:00 PM', home:'South Africa', homeFlag:'🇿🇦', away:'Czechia',      awayFlag:'🇨🇿', city:'Atlanta',       country:'USA' },
+  { group:'B', md:2, etDate:'Jun 18', etTime:'3:00 PM',  home:'Switzerland',  homeFlag:'🇨🇭', away:'Bosnia & Herz.', awayFlag:'🇧🇦', city:'Los Angeles', country:'USA' },
+  { group:'B', md:2, etDate:'Jun 18', etTime:'6:00 PM',  home:'Canada',       homeFlag:'🇨🇦', away:'Qatar',        awayFlag:'🇶🇦', city:'Vancouver',     country:'CAN' },
+  { group:'A', md:2, etDate:'Jun 18', etTime:'9:00 PM',  home:'Mexico',       homeFlag:'🇲🇽', away:'South Korea',  awayFlag:'🇰🇷', city:'Guadalajara',   country:'MEX' },
+  { group:'D', md:2, etDate:'Jun 19', etTime:'3:00 PM',  home:'USA',          homeFlag:'🇺🇸', away:'Australia',    awayFlag:'🇦🇺', city:'Seattle',       country:'USA' },
+  { group:'C', md:2, etDate:'Jun 19', etTime:'3:00 PM',  home:'Scotland',     homeFlag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', away:'Morocco',      awayFlag:'🇲🇦', city:'Boston',        country:'USA' },
+  { group:'C', md:2, etDate:'Jun 19', etTime:'9:00 PM',  home:'Brazil',       homeFlag:'🇧🇷', away:'Haiti',        awayFlag:'🇭🇹', city:'Philadelphia',  country:'USA' },
+  { group:'D', md:2, etDate:'Jun 19', etTime:'12:00 AM', home:'Paraguay',     homeFlag:'🇵🇾', away:'Türkiye',      awayFlag:'🇹🇷', city:'San Francisco', country:'USA' },
+  { group:'F', md:2, etDate:'Jun 20', etTime:'1:00 PM',  home:'Netherlands',  homeFlag:'🇳🇱', away:'Ukraine',      awayFlag:'🇺🇦', city:'Houston',       country:'USA' },
+  { group:'E', md:2, etDate:'Jun 20', etTime:'4:00 PM',  home:'Germany',      homeFlag:'🇩🇪', away:'Ivory Coast',  awayFlag:'🇨🇮', city:'Toronto',       country:'CAN' },
+  { group:'E', md:2, etDate:'Jun 20', etTime:'8:00 PM',  home:'Ecuador',      homeFlag:'🇪🇨', away:'Curaçao',      awayFlag:'🇨🇼', city:'Kansas City',   country:'USA' },
+  { group:'F', md:2, etDate:'Jun 20', etTime:'12:00 AM', home:'Tunisia',      homeFlag:'🇹🇳', away:'Japan',        awayFlag:'🇯🇵', city:'Monterrey',     country:'MEX' },
+  { group:'H', md:2, etDate:'Jun 21', etTime:'12:00 PM', home:'Spain',        homeFlag:'🇪🇸', away:'Saudi Arabia', awayFlag:'🇸🇦', city:'Atlanta',       country:'USA' },
+  { group:'G', md:2, etDate:'Jun 21', etTime:'3:00 PM',  home:'Belgium',      homeFlag:'🇧🇪', away:'Iran',         awayFlag:'🇮🇷', city:'Los Angeles',   country:'USA' },
+  { group:'H', md:2, etDate:'Jun 21', etTime:'6:00 PM',  home:'Uruguay',      homeFlag:'🇺🇾', away:'Cape Verde',   awayFlag:'🇨🇻', city:'Miami',         country:'USA' },
+  { group:'G', md:2, etDate:'Jun 21', etTime:'9:00 PM',  home:'New Zealand',  homeFlag:'🇳🇿', away:'Egypt',        awayFlag:'🇪🇬', city:'Vancouver',     country:'CAN' },
+  { group:'J', md:2, etDate:'Jun 22', etTime:'1:00 PM',  home:'Argentina',    homeFlag:'🇦🇷', away:'Austria',      awayFlag:'🇦🇹', city:'Dallas',        country:'USA' },
+  { group:'I', md:2, etDate:'Jun 22', etTime:'5:00 PM',  home:'France',       homeFlag:'🇫🇷', away:'Playoff W2',   awayFlag:'🏳️', city:'Philadelphia',  country:'USA' },
+  { group:'I', md:2, etDate:'Jun 22', etTime:'8:00 PM',  home:'Norway',       homeFlag:'🇳🇴', away:'Senegal',      awayFlag:'🇸🇳', city:'New York',      country:'USA' },
+  { group:'J', md:2, etDate:'Jun 22', etTime:'11:00 PM', home:'Jordan',       homeFlag:'🇯🇴', away:'Algeria',      awayFlag:'🇩🇿', city:'San Francisco', country:'USA' },
+  { group:'K', md:2, etDate:'Jun 23', etTime:'1:00 PM',  home:'Portugal',     homeFlag:'🇵🇹', away:'Uzbekistan',   awayFlag:'🇺🇿', city:'Houston',       country:'USA' },
+  { group:'L', md:2, etDate:'Jun 23', etTime:'4:00 PM',  home:'England',      homeFlag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', away:'Ghana',        awayFlag:'🇬🇭', city:'Boston',        country:'USA' },
+  { group:'L', md:2, etDate:'Jun 23', etTime:'7:00 PM',  home:'Panama',       homeFlag:'🇵🇦', away:'Croatia',      awayFlag:'🇭🇷', city:'Toronto',       country:'CAN' },
+  { group:'K', md:2, etDate:'Jun 23', etTime:'10:00 PM', home:'Colombia',     homeFlag:'🇨🇴', away:'Playoff W1',   awayFlag:'🏳️', city:'Guadalajara',   country:'MEX' },
+  { group:'B', md:3, etDate:'Jun 24', etTime:'3:00 PM',  home:'Canada',       homeFlag:'🇨🇦', away:'Switzerland',  awayFlag:'🇨🇭', city:'Vancouver',     country:'CAN' },
+  { group:'B', md:3, etDate:'Jun 24', etTime:'3:00 PM',  home:'Qatar',        homeFlag:'🇶🇦', away:'Bosnia & Herz.', awayFlag:'🇧🇦', city:'Seattle',     country:'USA' },
+  { group:'C', md:3, etDate:'Jun 24', etTime:'6:00 PM',  home:'Scotland',     homeFlag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿', away:'Brazil',       awayFlag:'🇧🇷', city:'Miami',         country:'USA' },
+  { group:'C', md:3, etDate:'Jun 24', etTime:'6:00 PM',  home:'Morocco',      homeFlag:'🇲🇦', away:'Haiti',        awayFlag:'🇭🇹', city:'Atlanta',       country:'USA' },
+  { group:'A', md:3, etDate:'Jun 24', etTime:'9:00 PM',  home:'Mexico',       homeFlag:'🇲🇽', away:'Czechia',      awayFlag:'🇨🇿', city:'Mexico City',   country:'MEX' },
+  { group:'A', md:3, etDate:'Jun 24', etTime:'9:00 PM',  home:'South Korea',  homeFlag:'🇰🇷', away:'South Africa', awayFlag:'🇿🇦', city:'Monterrey',     country:'MEX' },
+  { group:'E', md:3, etDate:'Jun 25', etTime:'4:00 PM',  home:'Ecuador',      homeFlag:'🇪🇨', away:'Germany',      awayFlag:'🇩🇪', city:'New York',      country:'USA' },
+  { group:'E', md:3, etDate:'Jun 25', etTime:'4:00 PM',  home:'Curaçao',      homeFlag:'🇨🇼', away:'Ivory Coast',  awayFlag:'🇨🇮', city:'Philadelphia',  country:'USA' },
+  { group:'F', md:3, etDate:'Jun 25', etTime:'7:00 PM',  home:'Tunisia',      homeFlag:'🇹🇳', away:'Netherlands',  awayFlag:'🇳🇱', city:'Kansas City',   country:'USA' },
+  { group:'F', md:3, etDate:'Jun 25', etTime:'7:00 PM',  home:'Japan',        homeFlag:'🇯🇵', away:'Ukraine',      awayFlag:'🇺🇦', city:'Dallas',        country:'USA' },
+  { group:'D', md:3, etDate:'Jun 25', etTime:'10:00 PM', home:'USA',          homeFlag:'🇺🇸', away:'Türkiye',      awayFlag:'🇹🇷', city:'Los Angeles',   country:'USA' },
+  { group:'D', md:3, etDate:'Jun 25', etTime:'10:00 PM', home:'Paraguay',     homeFlag:'🇵🇾', away:'Australia',    awayFlag:'🇦🇺', city:'San Francisco', country:'USA' },
+  { group:'I', md:3, etDate:'Jun 26', etTime:'3:00 PM',  home:'Norway',       homeFlag:'🇳🇴', away:'France',       awayFlag:'🇫🇷', city:'Boston',        country:'USA' },
+  { group:'I', md:3, etDate:'Jun 26', etTime:'3:00 PM',  home:'Senegal',      homeFlag:'🇸🇳', away:'Playoff W2',   awayFlag:'🏳️', city:'Toronto',       country:'CAN' },
+  { group:'H', md:3, etDate:'Jun 26', etTime:'8:00 PM',  home:'Uruguay',      homeFlag:'🇺🇾', away:'Spain',        awayFlag:'🇪🇸', city:'Guadalajara',   country:'MEX' },
+  { group:'H', md:3, etDate:'Jun 26', etTime:'8:00 PM',  home:'Cape Verde',   homeFlag:'🇨🇻', away:'Saudi Arabia', awayFlag:'🇸🇦', city:'Houston',       country:'USA' },
+  { group:'G', md:3, etDate:'Jun 26', etTime:'11:00 PM', home:'New Zealand',  homeFlag:'🇳🇿', away:'Belgium',      awayFlag:'🇧🇪', city:'Vancouver',     country:'CAN' },
+  { group:'G', md:3, etDate:'Jun 26', etTime:'11:00 PM', home:'Egypt',        homeFlag:'🇪🇬', away:'Iran',         awayFlag:'🇮🇷', city:'Seattle',       country:'USA' },
+  { group:'L', md:3, etDate:'Jun 27', etTime:'5:00 PM',  home:'Panama',       homeFlag:'🇵🇦', away:'England',      awayFlag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', city:'New York',      country:'USA' },
+  { group:'L', md:3, etDate:'Jun 27', etTime:'5:00 PM',  home:'Croatia',      homeFlag:'🇭🇷', away:'Ghana',        awayFlag:'🇬🇭', city:'Philadelphia',  country:'USA' },
+  { group:'K', md:3, etDate:'Jun 27', etTime:'7:30 PM',  home:'Colombia',     homeFlag:'🇨🇴', away:'Portugal',     awayFlag:'🇵🇹', city:'Miami',         country:'USA' },
+  { group:'K', md:3, etDate:'Jun 27', etTime:'7:30 PM',  home:'Uzbekistan',   homeFlag:'🇺🇿', away:'Playoff W1',   awayFlag:'🏳️', city:'Atlanta',       country:'USA' },
+  { group:'J', md:3, etDate:'Jun 27', etTime:'10:00 PM', home:'Jordan',       homeFlag:'🇯🇴', away:'Argentina',    awayFlag:'🇦🇷', city:'Dallas',        country:'USA' },
+  { group:'J', md:3, etDate:'Jun 27', etTime:'10:00 PM', home:'Algeria',      homeFlag:'🇩🇿', away:'Austria',      awayFlag:'🇦🇹', city:'Kansas City',   country:'USA' },
+];
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+let currentLang = 'en';
+let currentFilter = 'all';
+
+// ─────────────────────────────────────────────────────────────
+// TIME CONVERSION
+// ─────────────────────────────────────────────────────────────
+function etToRiyadh(etDate, etTime) {
+  const [time, ampm] = etTime.split(' ');
+  let [h, m] = time.split(':').map(Number);
+  if (ampm === 'PM' && h !== 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  const monthsMap = { Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11 };
+  const [mon, day] = etDate.split(' ');
+  let date = new Date(2026, monthsMap[mon], parseInt(day), h, m, 0);
+  date = new Date(date.getTime() + 7 * 3600000);
+  const hh = date.getHours();
+  const mm = String(date.getMinutes()).padStart(2,'0');
+  const ampmOut = hh >= 12 ? 'PM' : 'AM';
+  const h12 = hh % 12 === 0 ? 12 : hh % 12;
+  const timeNum = `${h12}:${mm} ${ampmOut}`;
+  const dayIdx = date.getDay();
+  const mo = date.getMonth() + 1;
+  const dy = date.getDate();
+  // store raw for translated date building
+  return { timeNum, hour: hh, dayIdx, month: mo, day: dy };
+}
+
+function getDateLabel(r, lang) {
+  const t = T[lang];
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayKey = dayNames[r.dayIdx];
+  return `${t.days[dayKey]}، ${r.day} ${t.months[r.month]}`;
+}
+
+function getDateSortKey(r) {
+  return r.month * 10000 + r.day * 100 + r.hour;
+}
+
+function getTimeClass(h) {
+  if (h >= 6  && h < 12) return 'time-morning';
+  if (h >= 12 && h < 18) return 'time-afternoon';
+  if (h >= 18 && h < 23) return 'time-evening';
+  if (h >= 23 || h < 3)  return 'time-late';
+  return 'time-overnight';
+}
+
+function getWatchBadge(h, lang) {
+  const t = T[lang];
+  if (h >= 12 && h < 23) return `<span class="watch-badge badge-prime">${t.badgeGreat}</span>`;
+  if (h >= 6  && h < 12) return `<span class="watch-badge badge-good">${t.badgeMorning}</span>`;
+  if (h >= 23 || h < 3)  return `<span class="watch-badge badge-late">${t.badgeLate}</span>`;
+  return `<span class="watch-badge badge-late">${t.badgeOvernight}</span>`;
+}
+
+function getTimeLabel(h, lang) {
+  const t = T[lang];
+  if (h >= 6  && h < 12) return t.morning;
+  if (h >= 12 && h < 18) return t.afternoon;
+  if (h >= 18 && h < 23) return t.evening;
+  if (h >= 23 || h < 3)  return t.late;
+  return t.overnight;
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER NAV
+// ─────────────────────────────────────────────────────────────
+function renderNav() {
+  const t = T[currentLang];
+  const nav = document.getElementById('groupsNav');
+  const groups = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+  nav.innerHTML = '';
+
+  const allBtn = document.createElement('button');
+  allBtn.className = 'group-pill' + (currentFilter === 'all' ? ' active' : '');
+  allBtn.textContent = t.allDates;
+  allBtn.onclick = () => { currentFilter = 'all'; renderAll(); };
+  nav.appendChild(allBtn);
+
+  groups.forEach(g => {
+    const btn = document.createElement('button');
+    btn.className = 'group-pill' + (currentFilter === g ? ' active' : '');
+    btn.textContent = `${t.group} ${g}`;
+    btn.onclick = () => { currentFilter = g; renderAll(); };
+    nav.appendChild(btn);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// RENDER SCHEDULE
+// ─────────────────────────────────────────────────────────────
+function renderSchedule() {
+  const t = T[currentLang];
+  const container = document.getElementById('mainContainer');
+  container.innerHTML = '';
+
+  const filtered = currentFilter === 'all'
+    ? matches
+    : matches.filter(m => m.group === currentFilter);
+
+  const enriched = filtered.map(m => {
+    const riyadh = etToRiyadh(m.etDate, m.etTime);
+    return { ...m, riyadh };
+  });
+
+  enriched.sort((a, b) => getDateSortKey(a.riyadh) - getDateSortKey(b.riyadh));
+
+  // Group by Riyadh date (use sort key as unique key)
+  const byDate = {};
+  const dateOrder = [];
+  enriched.forEach(m => {
+    const key = `${m.riyadh.month}-${m.riyadh.day}`;
+    if (!byDate[key]) { byDate[key] = []; dateOrder.push(key); }
+    byDate[key].push(m);
+  });
+
+  dateOrder.forEach(key => {
+    const dayMatches = byDate[key];
+    const sample = dayMatches[0].riyadh;
+    const dateLabel = getDateLabel(sample, currentLang);
+    const cnt = dayMatches.length;
+    const cntLabel = currentLang === 'ar'
+      ? (cnt === 1 ? `${cnt} ${t.matches1}` : `${cnt} ${t.matchesN}`)
+      : `${cnt} ${cnt === 1 ? t.matches1 : t.matchesN}`;
+
+    const section = document.createElement('div');
+    section.className = 'group-section';
+    section.innerHTML = `
+      <div class="group-header">
+        <div class="group-badge">${dateLabel}</div>
+        <div style="font-size:12px;color:var(--muted);letter-spacing:0.05em;align-self:flex-end;padding-bottom:6px;">${cntLabel}</div>
+      </div>
+    `;
+
+    const grid = document.createElement('div');
+    grid.className = 'matches-grid';
+
+    dayMatches.forEach(match => {
+      const r = match.riyadh;
+      const timeClass = getTimeClass(r.hour);
+      const badge = getWatchBadge(r.hour, currentLang);
+      const homeName = t.teams[match.home] || match.home;
+      const awayName = t.teams[match.away] || match.away;
+      const cityName = t.cities[match.city] || match.city;
+
+      const card = document.createElement('div');
+      card.className = `match-card ${timeClass}`;
+      card.innerHTML = `
+        <div class="time-col">
+          <div class="riyadh-time">${r.timeNum}</div>
+          <div class="time-label">${getTimeLabel(r.hour, currentLang)}</div>
+          <div class="et-time">${match.etTime} ${t.etLabel} · ${match.etDate}</div>
+          ${badge}
+        </div>
+        <div class="match-col">
+          <div class="team">
+            <span class="flag">${match.homeFlag}</span>
+            <span class="team-name">${homeName}</span>
+          </div>
+          <div class="vs-divider">${t.vs}</div>
+          <div class="team">
+            <span class="flag">${match.awayFlag}</span>
+            <span class="team-name">${awayName}</span>
+          </div>
+        </div>
+        <div class="venue-col">
+          <div class="grp-label">${t.group} ${match.group}</div>
+          <div class="venue-city">${cityName}</div>
+          <div class="venue-country">${match.country}</div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// UPDATE STATIC UI TEXT
+// ─────────────────────────────────────────────────────────────
+function updateStaticText() {
+  const t = T[currentLang];
+  document.getElementById('langLabel').textContent = t.langLabel;
+  document.getElementById('heroEyebrow').textContent = t.eyebrow;
+  document.getElementById('heroTitle').innerHTML = t.title;
+  document.getElementById('heroSub').innerHTML = t.sub;
+  document.getElementById('footerText').innerHTML = t.footer;
+
+  // Legend
+  document.querySelector('.leg-morning').textContent   = t.legMorning;
+  document.querySelector('.leg-afternoon').textContent = t.legAfternoon;
+  document.querySelector('.leg-evening').textContent   = t.legEvening;
+  document.querySelector('.leg-late').textContent      = t.legLate;
+  document.querySelector('.leg-overnight').textContent = t.legOvernight;
+  document.querySelector('.leg-great').textContent     = t.legGreat;
+  document.querySelector('.leg-good').textContent      = t.legGood;
+  document.querySelector('.leg-tough').textContent     = t.legTough;
+}
+
+// ─────────────────────────────────────────────────────────────
+// LANG TOGGLE
+// ─────────────────────────────────────────────────────────────
+function setLang(lang) {
+  currentLang = lang;
+  const body = document.getElementById('body');
+  body.className = lang;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+  document.getElementById('btnAr').classList.toggle('active', lang === 'ar');
+  updateStaticText();
+  renderAll();
+}
+
+function renderAll() {
+  renderNav();
+  renderSchedule();
+}
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>
