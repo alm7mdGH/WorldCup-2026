@@ -42,6 +42,7 @@
   .dot{width:8px;height:8px;border-radius:50%;}
 
   .groups-nav{display:flex;gap:6px;flex-wrap:wrap;padding:16px 40px;position:sticky;top:56px;z-index:100;background:rgba(10,10,15,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+  .has-countdown .groups-nav{top:var(--sticky-h,56px);}
   .group-pill{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .2s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
   body.ar .group-pill{font-family:'Tajawal',sans-serif;letter-spacing:0;font-size:13px;}
   .group-pill:hover,.group-pill.active{background:var(--accent);color:#000;border-color:var(--accent);}
@@ -149,11 +150,12 @@
   body.ar .st-pts{font-family:'Tajawal',sans-serif;font-weight:800;font-size:16px;}
   .gd-p{color:var(--green);}.gd-n{color:var(--red);}
 
+  /* ── Sticky header wrapper ── */
+  .sticky-header{position:sticky;top:0;z-index:200;}
   /* ── View mode tabs ── */
   .view-tabs{
     display:flex;gap:0;
     padding:0 40px;
-    position:sticky;top:0;z-index:200;
     background:rgba(10,10,15,.97);
     backdrop-filter:blur(16px);
     border-bottom:2px solid var(--border);
@@ -203,7 +205,7 @@
   .sgt-gd-p{color:var(--green);}.sgt-gd-n{color:var(--red);}
 
   /* ── Countdown banner ── */
-  .countdown-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;padding:16px 40px;background:linear-gradient(90deg,rgba(201,162,39,.08) 0%,rgba(201,162,39,.03) 100%);border-bottom:1px solid rgba(201,162,39,.2);}
+  .countdown-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;padding:16px 40px;background:rgba(10,10,15,.97);backdrop-filter:blur(16px);border-bottom:1px solid rgba(201,162,39,.2);}
   body.ar .countdown-banner{flex-direction:row-reverse;}
   .cd-left{display:flex;flex-direction:column;gap:2px;}
   .cd-label{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);opacity:.8;}
@@ -235,7 +237,7 @@
     .groups-nav,.container,.standings-page{padding-left:16px;padding-right:16px;}
     .legend{padding:16px;}.lang-bar{padding:10px 16px;}
     .view-tabs{padding:0 16px;}
-    .groups-nav{top:54px;}
+    .groups-nav{top:54px;}.has-countdown .groups-nav{top:var(--sticky-h,54px);}
     .view-tab{padding:14px 18px;font-size:13px;gap:6px;}
     .view-tab .tab-icon{font-size:16px;}
     .standings-grid{grid-template-columns:1fr;}
@@ -272,8 +274,6 @@
   <p class="hero-sub" id="heroSub">جميع مباريات دور المجموعات · مواعيد الانطلاق بتوقيت <strong>الرياض (AST، UTC+3)</strong> · ١١ – ٢٧ يونيو</p>
 </header>
 
-<div id="countdownBanner" class="countdown-banner" style="display:none"></div>
-
 <div class="legend">
   <div class="legend-item"><div class="dot" style="background:var(--morning)"></div><span class="leg-morning">الصباح</span></div>
   <div class="legend-item"><div class="dot" style="background:var(--afternoon)"></div><span class="leg-afternoon">بعد الظهر</span></div>
@@ -285,9 +285,12 @@
   <div class="legend-item">🔴 <span class="leg-tough">صعب</span></div>
 </div>
 
-<div class="view-tabs" id="viewTabs">
-  <button class="view-tab active" id="tabSchedule" onclick="setView('schedule')"><span class="tab-icon">📅</span><span id="tabScheduleLabel">الجدول</span></button>
-  <button class="view-tab" id="tabStandings" onclick="setView('standings')"><span class="tab-icon">📊</span><span id="tabStandingsLabel">الترتيب</span></button>
+<div class="sticky-header" id="stickyHeader">
+  <div class="view-tabs" id="viewTabs">
+    <button class="view-tab active" id="tabSchedule" onclick="setView('schedule')"><span class="tab-icon">📅</span><span id="tabScheduleLabel">الجدول</span></button>
+    <button class="view-tab" id="tabStandings" onclick="setView('standings')"><span class="tab-icon">📊</span><span id="tabStandingsLabel">الترتيب</span></button>
+  </div>
+  <div id="countdownBanner" class="countdown-banner" style="display:none"></div>
 </div>
 
 <div id="scheduleView">
@@ -1014,7 +1017,7 @@ function renderCountdown() {
   if (!banner) return;
   const t = T[lang];
   const match = findNextMatch();
-  if (!match) { banner.style.display = 'none'; return; }
+  if (!match) { banner.style.display = 'none'; document.body.classList.remove('has-countdown'); return; }
 
   const now = Date.now();
   const diff = match.utc - now;
@@ -1046,6 +1049,11 @@ function renderCountdown() {
   }
 
   banner.style.display = 'flex';
+  document.body.classList.add('has-countdown');
+  requestAnimationFrame(() => {
+    const h = document.getElementById('stickyHeader')?.offsetHeight || 56;
+    document.documentElement.style.setProperty('--sticky-h', h + 'px');
+  });
   banner.innerHTML = `
     <div class="cd-left">
       <div class="cd-label">${t.nextMatch}</div>
