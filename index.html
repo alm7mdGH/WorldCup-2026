@@ -1043,6 +1043,13 @@ function renderNav(){
   const a=document.createElement('button');
   a.className='group-pill'+(filter==='all'?' active':'');
   a.textContent=t.allDates;a.onclick=()=>{filter='all';renderAll();};nav.appendChild(a);
+  if(favourites.size>0){
+    const fp=document.createElement('button');
+    fp.className='group-pill'+(filter==='favs'?' active':'');
+    fp.style.cssText='border-color:rgba(201,162,39,.5);';
+    fp.textContent=`⭐ ${t.favFilter}`;
+    fp.onclick=()=>{filter='favs';renderAll();};nav.appendChild(fp);
+  }
   'ABCDEFGHIJKL'.split('').forEach(g=>{
     const b=document.createElement('button');
     b.className='group-pill'+(filter===g?' active':'');
