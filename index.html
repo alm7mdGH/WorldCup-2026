@@ -935,7 +935,7 @@ function renderSchedule(doScroll){
       // Re-query after delay so we always get the live DOM element
       const el=document.querySelector(`.group-section[data-k="${todayDateKey}"]`);
       if(!el)return;
-      const tabsH=document.getElementById('viewTabs')?.offsetHeight||56;
+      const tabsH=document.getElementById('stickyHeader')?.offsetHeight||56;
       const navH=document.getElementById('groupsNav')?.offsetHeight||60;
       const top=el.getBoundingClientRect().top+window.scrollY-tabsH-navH-12;
       window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
@@ -946,6 +946,20 @@ function renderSchedule(doScroll){
 /* current view: 'schedule' | 'standings' */
 let currentView = 'schedule';
 
+function scrollToToday(){
+  const tk=todayK();
+  const el=document.querySelector(`.group-section[data-k="${tk}"]`);
+  if(!el){window.scrollTo({top:0,behavior:'smooth'});return;}
+  setTimeout(()=>{
+    const el2=document.querySelector(`.group-section[data-k="${tk}"]`);
+    if(!el2)return;
+    const tabsH=document.getElementById('stickyHeader')?.offsetHeight||56;
+    const navH=document.getElementById('groupsNav')?.offsetHeight||60;
+    const top=el2.getBoundingClientRect().top+window.scrollY-tabsH-navH-12;
+    window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+  },200);
+}
+
 function setView(v){
   currentView = v;
   document.getElementById('scheduleView').style.display = v==='schedule' ? '' : 'none';
@@ -954,9 +968,9 @@ function setView(v){
   document.getElementById('tabSchedule').classList.toggle('active', v==='schedule');
   document.getElementById('tabStandings').classList.toggle('active', v==='standings');
   document.getElementById('tabBracket').classList.toggle('active', v==='bracket');
-  if(v==='standings') renderStandingsPage();
-  if(v==='bracket') renderBracket();
-  window.scrollTo({top:0,behavior:'smooth'});
+  if(v==='standings'){renderStandingsPage();window.scrollTo({top:0,behavior:'smooth'});}
+  else if(v==='bracket'){renderBracket();window.scrollTo({top:0,behavior:'smooth'});}
+  else{renderAll(true);}
 }
 
 function renderStandingsPage(){
