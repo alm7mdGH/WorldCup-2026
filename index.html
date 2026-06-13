@@ -202,6 +202,30 @@
   body.ar .sgt-pts{font-family:'Tajawal',sans-serif;font-weight:800;}
   .sgt-gd-p{color:var(--green);}.sgt-gd-n{color:var(--red);}
 
+  /* ── Countdown banner ── */
+  .countdown-banner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;padding:16px 40px;background:linear-gradient(90deg,rgba(201,162,39,.08) 0%,rgba(201,162,39,.03) 100%);border-bottom:1px solid rgba(201,162,39,.2);}
+  body.ar .countdown-banner{flex-direction:row-reverse;}
+  .cd-left{display:flex;flex-direction:column;gap:2px;}
+  .cd-label{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);opacity:.8;}
+  body.ar .cd-label{letter-spacing:.02em;text-transform:none;font-size:11px;}
+  .cd-teams{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;}
+  .cd-vs{font-size:12px;color:var(--muted);font-weight:500;}
+  .cd-time{font-size:11px;color:var(--muted);margin-top:3px;}
+  .cd-right{display:flex;align-items:center;gap:6px;}
+  .cd-unit{display:flex;flex-direction:column;align-items:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;min-width:56px;}
+  .cd-num{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;color:var(--accent2);letter-spacing:.03em;}
+  body.ar .cd-num{font-family:'Tajawal',sans-serif;font-weight:800;font-size:24px;}
+  .cd-unit-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+  body.ar .cd-unit-lbl{letter-spacing:0;text-transform:none;font-size:10px;}
+  .cd-sep{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--border);align-self:flex-start;margin-top:6px;}
+  .cd-live{display:flex;align-items:center;gap:8px;background:rgba(230,57,70,.12);border:1px solid rgba(230,57,70,.3);border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;color:var(--red);}
+  .cd-live::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--red);animation:blink 1s infinite;flex-shrink:0;}
+  @media(max-width:768px){
+    .countdown-banner{padding:12px 16px;gap:12px;}
+    .cd-unit{padding:6px 10px;min-width:46px;}
+    .cd-num{font-size:22px;}body.ar .cd-num{font-size:19px;}
+  }
+
   footer{text-align:center;padding:30px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);letter-spacing:.08em;}
   body.ar footer{letter-spacing:0;font-size:13px;}
   footer strong{color:var(--accent);}
@@ -247,6 +271,8 @@
   <h1 id="heroTitle">كأس العالم FIFA<span>2026</span></h1>
   <p class="hero-sub" id="heroSub">جميع مباريات دور المجموعات · مواعيد الانطلاق بتوقيت <strong>الرياض (AST، UTC+3)</strong> · ١١ – ٢٧ يونيو</p>
 </header>
+
+<div id="countdownBanner" class="countdown-banner" style="display:none"></div>
 
 <div class="legend">
   <div class="legend-item"><div class="dot" style="background:var(--morning)"></div><span class="leg-morning">الصباح</span></div>
@@ -295,6 +321,7 @@ const T={
     legGreat:'Great time',legGood:'Good',legTough:'Tough',
     footer:'All times in <strong>Riyadh / AST (UTC+3)</strong> · ET + 7 hours',
     etLabel:'ET',
+    nextMatch:'Next Match',cdDays:'d',cdHours:'h',cdMins:'m',cdSecs:'s',cdLiveNow:'LIVE NOW',
     stTeam:'Team',stP:'P',stW:'W',stD:'D',stL:'L',stGF:'GF',stGA:'GA',stGD:'GD',stPts:'Pts',
     teams:{Mexico:'Mexico','South Africa':'South Africa','South Korea':'South Korea',Czechia:'Czechia',Canada:'Canada','Bosnia & Herz.':'Bosnia & Herz.',Qatar:'Qatar',Switzerland:'Switzerland',Brazil:'Brazil',Morocco:'Morocco',Haiti:'Haiti',Scotland:'Scotland',USA:'USA',Paraguay:'Paraguay',Australia:'Australia','Türkiye':'Türkiye',Germany:'Germany','Curaçao':'Curaçao',Netherlands:'Netherlands',Japan:'Japan','Ivory Coast':'Ivory Coast',Ecuador:'Ecuador',Tunisia:'Tunisia',Sweden:'Sweden',Spain:'Spain','Cape Verde':'Cape Verde',Belgium:'Belgium',Egypt:'Egypt','Saudi Arabia':'Saudi Arabia',Uruguay:'Uruguay',Iran:'Iran','New Zealand':'New Zealand',France:'France',Senegal:'Senegal',Norway:'Norway',Iraq:'Iraq',Argentina:'Argentina',Algeria:'Algeria',Austria:'Austria',Jordan:'Jordan',Portugal:'Portugal','DR Congo':'DR Congo',England:'England',Croatia:'Croatia',Ghana:'Ghana',Panama:'Panama',Uzbekistan:'Uzbekistan',Colombia:'Colombia'},
     cities:{'Mexico City':'Mexico City',Guadalajara:'Guadalajara',Toronto:'Toronto','Los Angeles':'Los Angeles','San Francisco':'San Francisco','New York':'New York',Boston:'Boston',Vancouver:'Vancouver',Houston:'Houston',Dallas:'Dallas',Philadelphia:'Philadelphia',Monterrey:'Monterrey',Atlanta:'Atlanta',Seattle:'Seattle',Miami:'Miami','Kansas City':'Kansas City'},
@@ -315,6 +342,7 @@ const T={
     legGreat:'وقت ممتاز',legGood:'جيد',legTough:'صعب',
     footer:'جميع المواعيد بتوقيت <strong>الرياض / AST (UTC+3)</strong> · فارق ٧ ساعات عن توقيت الساحل الشرقي الأمريكي',
     etLabel:'ت.أمريكي',
+    nextMatch:'المباراة القادمة',cdDays:'ي',cdHours:'س',cdMins:'د',cdSecs:'ث',cdLiveNow:'مباشر الآن',
     stTeam:'المنتخب',stP:'ل',stW:'ف',stD:'ت',stL:'خ',stGF:'له',stGA:'عليه',stGD:'فارق',stPts:'نقاط',
     teams:{Mexico:'المكسيك','South Africa':'جنوب أفريقيا','South Korea':'كوريا الجنوبية',Czechia:'التشيك',Canada:'كندا','Bosnia & Herz.':'البوسنة',Qatar:'قطر',Switzerland:'سويسرا',Brazil:'البرازيل',Morocco:'المغرب',Haiti:'هايتي',Scotland:'اسكتلندا',USA:'الولايات المتحدة',Paraguay:'باراغواي',Australia:'أستراليا','Türkiye':'تركيا',Germany:'ألمانيا','Curaçao':'كوراساو',Netherlands:'هولندا',Japan:'اليابان','Ivory Coast':'كوت ديفوار',Ecuador:'الإكوادور',Tunisia:'تونس',Sweden:'السويد',Spain:'إسبانيا','Cape Verde':'الرأس الأخضر',Belgium:'بلجيكا',Egypt:'مصر','Saudi Arabia':'المملكة العربية السعودية',Uruguay:'أوروغواي',Iran:'إيران','New Zealand':'نيوزيلندا',France:'فرنسا',Senegal:'السنغال',Norway:'النرويج',Iraq:'العراق',Argentina:'الأرجنتين',Algeria:'الجزائر',Austria:'النمسا',Jordan:'الأردن',Portugal:'البرتغال','DR Congo':'الكونغو الديمقراطية',England:'إنجلترا',Croatia:'كرواتيا',Ghana:'غانا',Panama:'بنما',Uzbekistan:'أوزبكستان',Colombia:'كولومبيا'},
     cities:{'Mexico City':'مكسيكو سيتي',Guadalajara:'غوادالاخارا',Toronto:'تورنتو','Los Angeles':'لوس أنجلوس','San Francisco':'سان فرانسيسكو','New York':'نيويورك',Boston:'بوسطن',Vancouver:'فانكوفر',Houston:'هيوستن',Dallas:'دالاس',Philadelphia:'فيلادلفيا',Monterrey:'مونتيري',Atlanta:'أتلانتا',Seattle:'سياتل',Miami:'ميامي','Kansas City':'كانساس سيتي'},
@@ -951,13 +979,96 @@ function setLang(l){
   updateStatic();
   if(currentView==='standings') renderStandingsPage();
   else renderAll(false);
+  renderCountdown();
 }
 
 function renderAll(doScroll){renderNav();renderSchedule(doScroll!==false);}
 
+/* ═══════════════════════════════════════════════════════════
+   COUNTDOWN
+═══════════════════════════════════════════════════════════ */
+function matchUTCMs(etDate, etTime) {
+  const [time, ap] = etTime.split(' ');
+  let [h, m] = time.split(':').map(Number);
+  if (ap === 'PM' && h !== 12) h += 12;
+  if (ap === 'AM' && h === 12) h = 0;
+  const MM = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+  const [mon, day] = etDate.split(' ');
+  // ET is EDT (UTC-4) during June World Cup
+  return Date.UTC(2026, MM[mon], +day, h + 4, m, 0);
+}
+
+function findNextMatch() {
+  const now = Date.now();
+  return MATCHES
+    .filter(m => !getMatchScore(m))
+    .map(m => ({ ...m, utc: matchUTCMs(m.etDate, m.etTime) }))
+    .sort((a, b) => a.utc - b.utc)
+    .find(m => m.utc > now - 2 * 3600 * 1000); // include matches up to 2h in past (may be live)
+}
+
+let _cdTimer = null;
+
+function renderCountdown() {
+  const banner = document.getElementById('countdownBanner');
+  if (!banner) return;
+  const t = T[lang];
+  const match = findNextMatch();
+  if (!match) { banner.style.display = 'none'; return; }
+
+  const now = Date.now();
+  const diff = match.utc - now;
+  const isLive = diff <= 0 && diff > -2 * 3600 * 1000;
+
+  const r = toRiyadh(match.etDate, match.etTime);
+  const homeLabel = t.teams[match.home] || match.home;
+  const awayLabel = t.teams[match.away] || match.away;
+
+  let rightHtml;
+  if (isLive) {
+    rightHtml = `<div class="cd-live">${t.cdLiveNow}</div>`;
+  } else {
+    const total = Math.max(0, Math.floor(diff / 1000));
+    const dd = Math.floor(total / 86400);
+    const hh = Math.floor((total % 86400) / 3600);
+    const mm = Math.floor((total % 3600) / 60);
+    const ss = total % 60;
+    const pad = n => String(n).padStart(2, '0');
+    rightHtml = `<div class="cd-right">
+      <div class="cd-unit"><span class="cd-num">${pad(dd)}</span><span class="cd-unit-lbl">${t.cdDays}</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><span class="cd-num">${pad(hh)}</span><span class="cd-unit-lbl">${t.cdHours}</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><span class="cd-num">${pad(mm)}</span><span class="cd-unit-lbl">${t.cdMins}</span></div>
+      <div class="cd-sep">:</div>
+      <div class="cd-unit"><span class="cd-num">${pad(ss)}</span><span class="cd-unit-lbl">${t.cdSecs}</span></div>
+    </div>`;
+  }
+
+  banner.style.display = 'flex';
+  banner.innerHTML = `
+    <div class="cd-left">
+      <div class="cd-label">${t.nextMatch}</div>
+      <div class="cd-teams">
+        <span>${match.hf} ${homeLabel}</span>
+        <span class="cd-vs">${t.vs}</span>
+        <span>${match.af} ${awayLabel}</span>
+      </div>
+      <div class="cd-time">${r.str} · ${t.cities[match.city]||match.city} · ${t.group} ${match.group}</div>
+    </div>
+    ${rightHtml}`;
+}
+
+function startCountdown() {
+  if (_cdTimer) clearInterval(_cdTimer);
+  renderCountdown();
+  _cdTimer = setInterval(renderCountdown, 1000);
+}
+
 // Boot: render immediately with hardcoded scores + scroll, then fetch live data silently
 liveScores = buildBaseline();
 renderAll(true);
+startCountdown();
 // fetchLiveScores updates scores in background without scrolling
 fetchLiveScores();
 </script>
