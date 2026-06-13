@@ -177,6 +177,38 @@
   .view-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:rgba(201,162,39,.06);}
   .view-tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04);}
 
+  /* ── Knockout Bracket ── */
+  .bracket-page{padding:24px 40px 80px;overflow-x:auto;}
+  .bracket-wrap{display:flex;min-width:1080px;align-items:stretch;}
+  .bkt-col{display:flex;flex-direction:column;flex:1;min-width:148px;}
+  .bkt-col-label{text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);padding:10px 6px;border-bottom:1px solid var(--border);margin-bottom:0;}
+  body.ar .bkt-col-label{letter-spacing:0;text-transform:none;font-size:11px;}
+  .bkt-matches{display:flex;flex-direction:column;flex:1;}
+  .bkt-slot{display:flex;align-items:center;padding:4px 0;}
+  .bkt-match-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:0 6px;flex:1;}
+  .bkt-team{display:flex;align-items:center;gap:7px;padding:7px 10px;font-size:12px;font-weight:600;min-height:32px;}
+  .bkt-team+.bkt-team{border-top:1px solid var(--border);}
+  .bkt-team.tbd{color:var(--muted);font-weight:400;font-style:italic;}
+  .bkt-flag{font-size:15px;flex-shrink:0;line-height:1;}
+  .bkt-tname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:96px;font-size:11px;}
+  body.ar .bkt-tname{font-size:12px;}
+  /* Connector columns */
+  .bkt-connectors{display:flex;flex-direction:column;flex-shrink:0;width:16px;}
+  .bkt-conn-pair{display:flex;flex-direction:column;}
+  .bkt-conn-top{flex:1;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+  .bkt-conn-bot{flex:1;border-right:1px solid var(--border);}
+  body.ar .bkt-connectors{order:-1;}
+  body.ar .bkt-conn-top{border-right:none;border-left:1px solid var(--border);border-bottom:1px solid var(--border);}
+  body.ar .bkt-conn-bot{border-right:none;border-left:1px solid var(--border);}
+  /* Final winner display */
+  .bkt-winner-col{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:12px;min-width:80px;}
+  .bkt-trophy{font-size:36px;text-align:center;}
+  .bkt-winner-name{font-size:11px;font-weight:700;color:var(--accent);text-align:center;margin-top:6px;}
+  @media(max-width:768px){.bracket-page{padding:16px 0 80px;}.bkt-col{min-width:120px;}.bkt-tname{max-width:70px;}}
+  /* 3rd place tag */
+  .bkt-third-label{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;background:var(--surface2);border-radius:3px;margin:2px 6px 0;display:inline-block;}
+  body.ar .bkt-third-label{letter-spacing:0;text-transform:none;}
+
   /* ── All-standings page ── */
   .standings-page{max-width:1400px;margin:0 auto;padding:40px 40px 80px;}
   .standings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;}
@@ -289,6 +321,7 @@
   <div class="view-tabs" id="viewTabs">
     <button class="view-tab active" id="tabSchedule" onclick="setView('schedule')"><span class="tab-icon">📅</span><span id="tabScheduleLabel">الجدول</span></button>
     <button class="view-tab" id="tabStandings" onclick="setView('standings')"><span class="tab-icon">📊</span><span id="tabStandingsLabel">الترتيب</span></button>
+    <button class="view-tab" id="tabBracket" onclick="setView('bracket')"><span class="tab-icon">🏆</span><span id="tabBracketLabel">الكأس</span></button>
   </div>
   <div id="countdownBanner" class="countdown-banner" style="display:none"></div>
 </div>
@@ -297,6 +330,8 @@
   <nav class="groups-nav" id="groupsNav"></nav>
   <main class="container" id="mainContainer"></main>
 </div>
+
+<div id="bracketView" style="display:none"></div>
 
 <div id="standingsView" style="display:none">
   <div class="standings-page">
@@ -325,6 +360,9 @@ const T={
     footer:'All times in <strong>Riyadh / AST (UTC+3)</strong> · ET + 7 hours',
     etLabel:'ET',
     nextMatch:'Next Match',cdDays:'d',cdHours:'h',cdMins:'m',cdSecs:'s',cdLiveNow:'LIVE NOW',
+    tabBracket:'Bracket',
+    bktR32:'Round of 32',bktR16:'Round of 16',bktQF:'Quarter Finals',bktSF:'Semi Finals',bktF:'Final',
+    bktTBD:'TBD',bktWinner:'Winner',bktRunnerUp:'Runner-up',bktThird:'3rd Place',bkt3rdMatch:'3rd Place Match',
     stTeam:'Team',stP:'P',stW:'W',stD:'D',stL:'L',stGF:'GF',stGA:'GA',stGD:'GD',stPts:'Pts',
     teams:{Mexico:'Mexico','South Africa':'South Africa','South Korea':'South Korea',Czechia:'Czechia',Canada:'Canada','Bosnia & Herz.':'Bosnia & Herz.',Qatar:'Qatar',Switzerland:'Switzerland',Brazil:'Brazil',Morocco:'Morocco',Haiti:'Haiti',Scotland:'Scotland',USA:'USA',Paraguay:'Paraguay',Australia:'Australia','Türkiye':'Türkiye',Germany:'Germany','Curaçao':'Curaçao',Netherlands:'Netherlands',Japan:'Japan','Ivory Coast':'Ivory Coast',Ecuador:'Ecuador',Tunisia:'Tunisia',Sweden:'Sweden',Spain:'Spain','Cape Verde':'Cape Verde',Belgium:'Belgium',Egypt:'Egypt','Saudi Arabia':'Saudi Arabia',Uruguay:'Uruguay',Iran:'Iran','New Zealand':'New Zealand',France:'France',Senegal:'Senegal',Norway:'Norway',Iraq:'Iraq',Argentina:'Argentina',Algeria:'Algeria',Austria:'Austria',Jordan:'Jordan',Portugal:'Portugal','DR Congo':'DR Congo',England:'England',Croatia:'Croatia',Ghana:'Ghana',Panama:'Panama',Uzbekistan:'Uzbekistan',Colombia:'Colombia'},
     cities:{'Mexico City':'Mexico City',Guadalajara:'Guadalajara',Toronto:'Toronto','Los Angeles':'Los Angeles','San Francisco':'San Francisco','New York':'New York',Boston:'Boston',Vancouver:'Vancouver',Houston:'Houston',Dallas:'Dallas',Philadelphia:'Philadelphia',Monterrey:'Monterrey',Atlanta:'Atlanta',Seattle:'Seattle',Miami:'Miami','Kansas City':'Kansas City'},
@@ -346,6 +384,9 @@ const T={
     footer:'جميع المواعيد بتوقيت <strong>الرياض / AST (UTC+3)</strong> · فارق ٧ ساعات عن توقيت الساحل الشرقي الأمريكي',
     etLabel:'ت.أمريكي',
     nextMatch:'المباراة القادمة',cdDays:'ي',cdHours:'س',cdMins:'د',cdSecs:'ث',cdLiveNow:'مباشر الآن',
+    tabBracket:'الكأس',
+    bktR32:'دور الـ32',bktR16:'دور الـ16',bktQF:'ربع النهائي',bktSF:'نصف النهائي',bktF:'النهائي',
+    bktTBD:'غير محدد',bktWinner:'صدارة',bktRunnerUp:'وصافة',bktThird:'المركز الثالث',bkt3rdMatch:'مباراة الثالث',
     stTeam:'المنتخب',stP:'ل',stW:'ف',stD:'ت',stL:'خ',stGF:'له',stGA:'عليه',stGD:'فارق',stPts:'نقاط',
     teams:{Mexico:'المكسيك','South Africa':'جنوب أفريقيا','South Korea':'كوريا الجنوبية',Czechia:'التشيك',Canada:'كندا','Bosnia & Herz.':'البوسنة',Qatar:'قطر',Switzerland:'سويسرا',Brazil:'البرازيل',Morocco:'المغرب',Haiti:'هايتي',Scotland:'اسكتلندا',USA:'الولايات المتحدة',Paraguay:'باراغواي',Australia:'أستراليا','Türkiye':'تركيا',Germany:'ألمانيا','Curaçao':'كوراساو',Netherlands:'هولندا',Japan:'اليابان','Ivory Coast':'كوت ديفوار',Ecuador:'الإكوادور',Tunisia:'تونس',Sweden:'السويد',Spain:'إسبانيا','Cape Verde':'الرأس الأخضر',Belgium:'بلجيكا',Egypt:'مصر','Saudi Arabia':'المملكة العربية السعودية',Uruguay:'أوروغواي',Iran:'إيران','New Zealand':'نيوزيلندا',France:'فرنسا',Senegal:'السنغال',Norway:'النرويج',Iraq:'العراق',Argentina:'الأرجنتين',Algeria:'الجزائر',Austria:'النمسا',Jordan:'الأردن',Portugal:'البرتغال','DR Congo':'الكونغو الديمقراطية',England:'إنجلترا',Croatia:'كرواتيا',Ghana:'غانا',Panama:'بنما',Uzbekistan:'أوزبكستان',Colombia:'كولومبيا'},
     cities:{'Mexico City':'مكسيكو سيتي',Guadalajara:'غوادالاخارا',Toronto:'تورنتو','Los Angeles':'لوس أنجلوس','San Francisco':'سان فرانسيسكو','New York':'نيويورك',Boston:'بوسطن',Vancouver:'فانكوفر',Houston:'هيوستن',Dallas:'دالاس',Philadelphia:'فيلادلفيا',Monterrey:'مونتيري',Atlanta:'أتلانتا',Seattle:'سياتل',Miami:'ميامي','Kansas City':'كانساس سيتي'},
@@ -909,9 +950,12 @@ function setView(v){
   currentView = v;
   document.getElementById('scheduleView').style.display = v==='schedule' ? '' : 'none';
   document.getElementById('standingsView').style.display = v==='standings' ? '' : 'none';
+  document.getElementById('bracketView').style.display = v==='bracket' ? '' : 'none';
   document.getElementById('tabSchedule').classList.toggle('active', v==='schedule');
   document.getElementById('tabStandings').classList.toggle('active', v==='standings');
+  document.getElementById('tabBracket').classList.toggle('active', v==='bracket');
   if(v==='standings') renderStandingsPage();
+  if(v==='bracket') renderBracket();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -963,6 +1007,7 @@ function updateStatic(){updateLiveIndicator();
   document.getElementById('footerEl').innerHTML=t.footer;
   document.getElementById('tabScheduleLabel').textContent=t.tabSchedule;
   document.getElementById('tabStandingsLabel').textContent=t.tabStandings;
+  document.getElementById('tabBracketLabel').textContent=t.tabBracket;
   document.querySelector('.leg-morning').textContent=t.legMorning;
   document.querySelector('.leg-afternoon').textContent=t.legAfternoon;
   document.querySelector('.leg-evening').textContent=t.legEvening;
@@ -981,11 +1026,106 @@ function setLang(l){
   document.getElementById('btnAr').classList.toggle('active',l==='ar');
   updateStatic();
   if(currentView==='standings') renderStandingsPage();
+  else if(currentView==='bracket') renderBracket();
   else renderAll(false);
   renderCountdown();
 }
 
 function renderAll(doScroll){renderNav();renderSchedule(doScroll!==false);}
+
+/* ═══════════════════════════════════════════════════════════
+   KNOCKOUT BRACKET
+═══════════════════════════════════════════════════════════ */
+
+// R32 slot pairs — each entry is [homeSlot, awaySlot]
+// Slots: '1A'=winner group A, '2B'=runner-up group B, '3rd'=best 3rd (TBD)
+const R32_DEFS = [
+  ['1A','2B'], ['1C','2D'], ['1E','2F'], ['1G','2H'],
+  ['1I','2J'], ['1K','2L'], ['3rd','3rd'], ['3rd','3rd'],
+  ['2A','1B'], ['2C','1D'], ['2E','1F'], ['2G','1H'],
+  ['2I','1J'], ['2K','1L'], ['3rd','3rd'], ['3rd','3rd'],
+];
+
+function resolveSlotTeam(slot) {
+  const t = T[lang];
+  if (slot === '3rd') return {flag:null, name:null, label:t.bktThird, tbd:true};
+  const pos = parseInt(slot[0]);
+  const grp = slot[1];
+  const rows = calcStandings(grp);
+  const r = rows[pos - 1];
+  if (!r || r.p === 0) {
+    const lbl = `${pos===1 ? t.bktWinner : t.bktRunnerUp} ${t.group} ${grp}`;
+    return {flag:null, name:null, label:lbl, tbd:true};
+  }
+  return {flag:r.f, name:t.teams[r.n]||r.n, label:null, tbd:false};
+}
+
+function bktTeamHTML(slot) {
+  const r = resolveSlotTeam(slot);
+  if (r.tbd) return `<div class="bkt-team tbd"><span class="bkt-flag">—</span><span class="bkt-tname">${r.label}</span></div>`;
+  return `<div class="bkt-team"><span class="bkt-flag">${r.flag}</span><span class="bkt-tname">${r.name}</span></div>`;
+}
+
+function bktTBDHTML(label) {
+  return `<div class="bkt-team tbd"><span class="bkt-flag">—</span><span class="bkt-tname">${label||T[lang].bktTBD}</span></div>
+          <div class="bkt-team tbd"><span class="bkt-flag">—</span><span class="bkt-tname">${label||T[lang].bktTBD}</span></div>`;
+}
+
+function renderBracket() {
+  const t = T[lang];
+  const page = document.getElementById('bracketView');
+
+  const rounds = [
+    {label: t.bktR32, count: 16, flex: 1},
+    {label: t.bktR16, count: 8,  flex: 2},
+    {label: t.bktQF,  count: 4,  flex: 4},
+    {label: t.bktSF,  count: 2,  flex: 8},
+    {label: t.bktF,   count: 1,  flex: 16},
+  ];
+
+  let html = '<div class="bracket-page"><div class="bracket-wrap">';
+
+  rounds.forEach((round, ri) => {
+    html += `<div class="bkt-col">
+      <div class="bkt-col-label">${round.label}</div>
+      <div class="bkt-matches">`;
+
+    for (let mi = 0; mi < round.count; mi++) {
+      html += `<div class="bkt-slot" style="flex:${round.flex}">
+        <div class="bkt-match-card">`;
+      if (ri === 0) {
+        // R32 — resolve from group standings
+        const [h, a] = R32_DEFS[mi];
+        html += bktTeamHTML(h) + bktTeamHTML(a);
+      } else {
+        html += bktTBDHTML();
+      }
+      html += `</div></div>`;
+    }
+
+    html += `</div></div>`;
+
+    // Connector column between rounds
+    if (ri < rounds.length - 1) {
+      const pairs = round.count / 2;
+      const pairFlex = round.flex * 2;
+      html += `<div class="bkt-connectors">`;
+      for (let i = 0; i < pairs; i++) {
+        html += `<div class="bkt-conn-pair" style="flex:${pairFlex}">
+          <div class="bkt-conn-top"></div>
+          <div class="bkt-conn-bot"></div>
+        </div>`;
+      }
+      html += `</div>`;
+    }
+  });
+
+  // Trophy column after Final
+  html += `<div class="bkt-winner-col"><div class="bkt-trophy">🏆</div><div class="bkt-winner-name">${t.bktTBD}</div></div>`;
+
+  html += '</div></div>';
+  page.innerHTML = html;
+}
 
 /* ═══════════════════════════════════════════════════════════
    COUNTDOWN
