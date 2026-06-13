@@ -334,6 +334,11 @@
   .star-btn.starred{opacity:1;}
   .match-card.fav-match{border-color:rgba(201,162,39,.45);box-shadow:0 0 14px rgba(201,162,39,.09);}
   .match-card.fav-match::before{background:var(--accent)!important;}
+  .match-card.live-match{border-color:rgba(230,57,70,.5);box-shadow:0 0 18px rgba(230,57,70,.12);}
+  .match-card.live-match::before{background:var(--red)!important;}
+  .live-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.4);color:var(--red);font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:3px;}
+  .live-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 1s infinite;flex-shrink:0;}
+  body.ar .live-badge{letter-spacing:0;text-transform:none;font-size:10px;}
 
   /* ── Favs tab page ── */
   .favs-page{max-width:1400px;margin:0 auto;padding:32px 40px 80px;}
@@ -452,7 +457,7 @@ const T={
     legGreat:'Great time',legGood:'Good',legTough:'Tough',
     footer:'All times in <strong>Riyadh / AST (UTC+3)</strong> · ET + 7 hours',
     etLabel:'ET',
-    nextMatch:'Next Match',cdDays:'d',cdHours:'h',cdMins:'m',cdSecs:'s',cdLiveNow:'LIVE NOW',
+    nextMatch:'Next Match',cdDays:'d',cdHours:'h',cdMins:'m',cdSecs:'s',cdLiveNow:'LIVE NOW',liveBadge:'LIVE',
     tabBracket:'Knockout',
     tabFavs:'Favourites',
     favTeams:'Favourite Teams',favFilter:'Favourites',favClose:'Done',favClearAll:'Clear all',
@@ -480,7 +485,7 @@ const T={
     legGreat:'وقت ممتاز',legGood:'جيد',legTough:'صعب',
     footer:'جميع المواعيد بتوقيت <strong>الرياض / AST (UTC+3)</strong> · فارق ٧ ساعات عن توقيت الساحل الشرقي الأمريكي',
     etLabel:'ت.أمريكي',
-    nextMatch:'المباراة القادمة',cdDays:'ي',cdHours:'س',cdMins:'د',cdSecs:'ث',cdLiveNow:'مباشر الآن',
+    nextMatch:'المباراة القادمة',cdDays:'ي',cdHours:'س',cdMins:'د',cdSecs:'ث',cdLiveNow:'مباشر الآن',liveBadge:'مباشر',
     tabBracket:'التصفيات',
     tabFavs:'المفضلة',
     favTeams:'الفرق المفضلة',favFilter:'المفضلة',favClose:'تم',favClearAll:'مسح الكل',
@@ -712,10 +717,16 @@ function exportCalendar(){
    Cache: 10 min in sessionStorage per tab session.
 ═══════════════════════════════════════════════════════════ */
 
-// liveScores: key = "home|away" (canonical names) → [hg, ag]
+// liveScores: key = "home|away" (canonical names) → [hg, ag] for finished matches
+// liveInProgress: same key → [hg, ag] for currently playing matches
 let liveScores = {};
+let liveInProgress = {};
 let dataFreshness = 'loading'; // 'loading' | 'live' | 'stale' | 'failed'
 let liveUpdatedAt = null;
+
+function getLiveScore(m){
+  return liveInProgress[m.home+'|'+m.away] ?? liveInProgress[scoreKey(m.home,m.away)] ?? null;
+}
 
 const CACHE_KEY = 'wc26_live_v3';
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -789,20 +800,30 @@ function parseOpenFootball(json) {
 /* Parse worldcup26.ir /get/games */
 function parseWC26IR(data) {
   const scores = {};
+  const inProgress = {};
   const games = Array.isArray(data) ? data : (data.games || data.matches || data.data || []);
   games.forEach(g => {
     const status = (g.status || g.matchStatus || g.match_status || '').toUpperCase();
-    const finished = ['FT','FINISHED','COMPLETED','FULL_TIME','ENDED'].includes(status) || g.finished === true;
-    if (!finished) return;
-    const h = g.home_team || g.homeTeam || g.team1 || g.home || '';
-    const a = g.away_team || g.awayTeam || g.team2 || g.away || '';
+    const elapsed = (g.time_elapsed || '').toLowerCase();
+    const finished = g.finished === 'TRUE' || g.finished === true ||
+      ['FT','FINISHED','COMPLETED','FULL_TIME','ENDED'].includes(status) ||
+      elapsed === 'finished';
+    const live = !finished && (elapsed === 'live' || elapsed === 'inprogress' || elapsed === 'in_progress' ||
+      ['LIVE','IN_PLAY','IN PLAY','INPLAY','PLAYING'].includes(status));
+
+    const h = g.home_team_name_en || g.home_team || g.homeTeam || g.team1 || g.home || '';
+    const a = g.away_team_name_en || g.away_team || g.awayTeam || g.team2 || g.away || '';
     const hs = g.home_score ?? g.homeScore ?? g.score1 ?? g.goals_home ?? g.score?.home ?? null;
     const as_ = g.away_score ?? g.awayScore ?? g.score2 ?? g.goals_away ?? g.score?.away ?? null;
-    if (h && a && hs != null && as_ != null) {
+    if (!h || !a || hs == null || as_ == null) return;
+
+    if (finished) {
       scores[scoreKey(h, a)] = [parseInt(hs), parseInt(as_)];
+    } else if (live) {
+      inProgress[scoreKey(h, a)] = [parseInt(hs), parseInt(as_)];
     }
   });
-  return scores;
+  return { scores, inProgress };
 }
 
 function getCached() {
@@ -880,9 +901,10 @@ async function fetchLiveScores() {
 
 async function fetchAndUpdate(baseline) {
   let freshScores = {};
+  let freshInProgress = {};
   let gotData = false;
 
-  // Source 1: worldcup26.ir (real-time, no auth needed for /get/games)
+  // Source 1: worldcup26.ir (real-time, provides live scores)
   if (!gotData) {
     try {
       const r = await Promise.race([
@@ -891,13 +913,15 @@ async function fetchAndUpdate(baseline) {
       ]);
       if (r.ok) {
         const json = await r.json();
-        freshScores = parseWC26IR(json);
-        if (Object.keys(freshScores).length > 0) gotData = true;
+        const parsed = parseWC26IR(json);
+        freshScores = parsed.scores;
+        freshInProgress = parsed.inProgress;
+        if (Object.keys(freshScores).length > 0 || Object.keys(freshInProgress).length > 0) gotData = true;
       }
     } catch(e) { /* CORS blocked or timeout — try next */ }
   }
 
-  // Source 2: openfootball raw GitHub (~12h lag but CORS-open)
+  // Source 2: openfootball raw GitHub (~12h lag but CORS-open, finished only)
   if (!gotData) {
     try {
       const r = await Promise.race([
@@ -915,17 +939,35 @@ async function fetchAndUpdate(baseline) {
   if (gotData) {
     const merged = mergeScores(baseline, freshScores);
     setCache(freshScores);
-    applyScores(merged);
+    liveScores = merged;
+    liveInProgress = freshInProgress;
     dataFreshness = 'live';
     liveUpdatedAt = Date.now();
   } else {
-    // Both failed — use baseline only
-    applyScores(baseline);
+    liveScores = baseline;
+    liveInProgress = {};
     dataFreshness = Object.keys(baseline).length > 0 ? 'stale' : 'failed';
   }
 
   updateLiveIndicator();
-  renderAll(false); // never scroll on live-data re-renders
+  if(currentView==='favs') renderFavsView();
+  else renderAll(false);
+  scheduleLiveRefresh();
+}
+
+// Poll every 60s while a match is live, every 5min otherwise
+let _liveRefreshTimer = null;
+function scheduleLiveRefresh() {
+  if (_liveRefreshTimer) clearTimeout(_liveRefreshTimer);
+  const hasLive = Object.keys(liveInProgress).length > 0;
+  // Also check if any match should be live based on kickoff time
+  const now = Date.now();
+  const kickedOff = MATCHES.some(m => {
+    const utc = matchUTCMs(m.etDate, m.etTime);
+    return utc <= now && now < utc + 2*3600*1000 && !getMatchScore(m);
+  });
+  const interval = (hasLive || kickedOff) ? 60000 : 5*60*1000;
+  _liveRefreshTimer = setTimeout(() => fetchAndUpdate(buildBaseline()), interval);
 }
 
 /* Get score for a match (checks liveScores first) */
@@ -1092,21 +1134,25 @@ function renderSchedule(doScroll){
     const grid=document.createElement('div');grid.className='matches-grid';
     day.forEach(m=>{
       const r=m.r,sc=getMatchScore(m),fin=!!sc;
+      const lsc=getLiveScore(m);
+      const isLive=!fin&&!!lsc;
       const card=document.createElement('div');
-      card.className=`match-card ${tClass(r.h)}${fin?' finished':''}${hasFav(m)?' fav-match':''}`;
+      card.className=`match-card ${tClass(r.h)}${fin?' finished':''}${isLive?' live-match':''}${hasFav(m)?' fav-match':''}`;
 
       const starBtn=(name)=>`<button class="star-btn${favourites.has(name)?' starred':''}" onclick="toggleFavCard('${name.replace(/'/g,"\\'")}')">${favourites.has(name)?'★':'☆'}</button>`;
 
       let mid;
-      if(fin){
+      if(fin||isLive){
+        const score=fin?sc:lsc;
+        const badge=fin?`<span class="ft-badge">${t.ft}</span>`:`<span class="live-badge">${t.liveBadge}</span>`;
         mid=`<div class="result-col">
           <div class="result-teams">
             <div class="result-team"><span class="flag">${m.hf}</span><span class="team-name">${t.teams[m.home]||m.home}</span>${starBtn(m.home)}</div>
             <div class="result-team" style="margin-top:4px"><span class="flag">${m.af}</span><span class="team-name">${t.teams[m.away]||m.away}</span>${starBtn(m.away)}</div>
           </div>
           <div class="result-score">
-            <div class="score-nums">${sc[0]}<span class="score-sep"> – </span>${sc[1]}</div>
-            <span class="ft-badge">${t.ft}</span>
+            <div class="score-nums">${score[0]}<span class="score-sep"> – </span>${score[1]}</div>
+            ${badge}
           </div>
         </div>`;
       } else {
@@ -1213,17 +1259,20 @@ function renderFavsView(){
         <div class="matches-grid">`;
       day.forEach(m=>{
         const r=m.r,sc=getMatchScore(m),fin=!!sc;
+        const lsc=getLiveScore(m),isLive=!fin&&!!lsc;
         const starBtn=(name)=>`<button class="star-btn${favourites.has(name)?' starred':''}" onclick="toggleFavCard('${name.replace(/'/g,"\\'")}');renderFavsView()">${favourites.has(name)?'★':'☆'}</button>`;
         let mid;
-        if(fin){
+        if(fin||isLive){
+          const score=fin?sc:lsc;
+          const badge=fin?`<span class="ft-badge">${t.ft}</span>`:`<span class="live-badge">${t.liveBadge}</span>`;
           mid=`<div class="result-col">
             <div class="result-teams">
               <div class="result-team"><span class="flag">${m.hf}</span><span class="team-name">${t.teams[m.home]||m.home}</span>${starBtn(m.home)}</div>
               <div class="result-team" style="margin-top:4px"><span class="flag">${m.af}</span><span class="team-name">${t.teams[m.away]||m.away}</span>${starBtn(m.away)}</div>
             </div>
             <div class="result-score">
-              <div class="score-nums">${sc[0]}<span class="score-sep"> – </span>${sc[1]}</div>
-              <span class="ft-badge">${t.ft}</span>
+              <div class="score-nums">${score[0]}<span class="score-sep"> – </span>${score[1]}</div>
+              ${badge}
             </div>
           </div>`;
         } else {
@@ -1233,7 +1282,7 @@ function renderFavsView(){
             <div class="team"><span class="flag">${m.af}</span><span class="team-name">${t.teams[m.away]||m.away}</span>${starBtn(m.away)}</div>
           </div>`;
         }
-        matchesHtml+=`<div class="match-card ${tClass(r.h)}${fin?' finished':''} fav-match">
+        matchesHtml+=`<div class="match-card ${tClass(r.h)}${fin?' finished':''}${isLive?' live-match':''} fav-match">
           <div class="time-col">
             <div class="riyadh-time">${r.str}</div>
             <div class="time-lbl">${tLabel(r.h,lang)}</div>
