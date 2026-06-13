@@ -280,6 +280,32 @@
     .riyadh-time{font-size:22px;}body.ar .riyadh-time{font-size:18px;}
     .score-nums{font-size:24px;}
   }
+
+  /* ── Favourites ── */
+  .star-btn{background:none;border:none;cursor:pointer;font-size:13px;padding:0 2px 0 5px;line-height:1;opacity:.28;transition:opacity .15s,transform .1s;flex-shrink:0;color:var(--accent2);vertical-align:middle;}
+  .star-btn:hover{opacity:.7;transform:scale(1.25);}
+  .star-btn.starred{opacity:1;}
+  .match-card.fav-match{border-color:rgba(201,162,39,.45);box-shadow:0 0 14px rgba(201,162,39,.09);}
+  .match-card.fav-match::before{background:var(--accent)!important;}
+
+  /* Teams picker modal */
+  .teams-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:600;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+  .teams-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:min(660px,95vw);max-height:84vh;display:flex;flex-direction:column;overflow:hidden;}
+  .teams-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);gap:12px;}
+  .teams-modal-title{font-size:15px;font-weight:700;color:var(--accent);}
+  .teams-modal-close{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);cursor:pointer;font-size:12px;font-weight:700;padding:6px 16px;font-family:inherit;transition:all .15s;}
+  .teams-modal-close:hover{color:var(--text);border-color:var(--accent);}
+  .teams-modal-bar{display:flex;align-items:center;gap:8px;padding:10px 24px;border-bottom:1px solid var(--border);}
+  .teams-modal-body{overflow-y:auto;padding:16px 24px 24px;}
+  .teams-grid-modal{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:7px;}
+  .team-pick-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);font-family:inherit;transition:all .15s;text-align:start;width:100%;}
+  .team-pick-btn:hover{border-color:var(--accent);color:var(--text);}
+  .team-pick-btn.fav{border-color:var(--accent);background:rgba(201,162,39,.13);color:var(--accent2);}
+  .team-pick-btn .tp-flag{font-size:17px;flex-shrink:0;line-height:1;}
+  .team-pick-btn .tp-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
+  .team-pick-btn .tp-star{flex-shrink:0;font-size:11px;opacity:.7;}
+  .team-pick-btn.fav .tp-star{opacity:1;}
+  @media(max-width:768px){.teams-grid-modal{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}.teams-modal-body{padding:12px 14px 20px;}.teams-modal-head{padding:14px 16px;}}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-EV468ZK1GS"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-EV468ZK1GS');</script>
@@ -361,6 +387,8 @@ const T={
     etLabel:'ET',
     nextMatch:'Next Match',cdDays:'d',cdHours:'h',cdMins:'m',cdSecs:'s',cdLiveNow:'LIVE NOW',
     tabBracket:'Knockout',
+    favTeams:'Favourite Teams',favFilter:'Favourites',favClose:'Done',favClearAll:'Clear all',
+    favExport:'📅 Add to Calendar',favNone:'No matches for your favourite teams yet.',
     bktR32:'Round of 32',bktR16:'Round of 16',bktQF:'Quarter Finals',bktSF:'Semi Finals',bktF:'Final',
     bktTBD:'TBD',bktWinner:'Winner',bktRunnerUp:'Runner-up',bktThird:'3rd Place',bkt3rdMatch:'3rd Place Match',
     stTeam:'Team',stP:'P',stW:'W',stD:'D',stL:'L',stGF:'GF',stGA:'GA',stGD:'GD',stPts:'Pts',
@@ -385,6 +413,8 @@ const T={
     etLabel:'ت.أمريكي',
     nextMatch:'المباراة القادمة',cdDays:'ي',cdHours:'س',cdMins:'د',cdSecs:'ث',cdLiveNow:'مباشر الآن',
     tabBracket:'التصفيات',
+    favTeams:'الفرق المفضلة',favFilter:'المفضلة',favClose:'تم',favClearAll:'مسح الكل',
+    favExport:'📅 أضف للتقويم',favNone:'لا مباريات للفرق المفضلة بعد.',
     bktR32:'دور الـ32',bktR16:'دور الـ16',bktQF:'ربع النهائي',bktSF:'نصف النهائي',bktF:'النهائي',
     bktTBD:'غير محدد',bktWinner:'صدارة',bktRunnerUp:'وصافة',bktThird:'المركز الثالث',bkt3rdMatch:'مباراة الثالث',
     stTeam:'المنتخب',stP:'ل',stW:'ف',stD:'ت',stL:'خ',stGF:'له',stGA:'عليه',stGD:'فارق',stPts:'نقاط',
@@ -513,6 +543,91 @@ const GROUPS={
    STATE
 ═══════════════════════════════════════════════════════════ */
 let lang='ar', filter='all';
+
+/* ═══════════════════════════════════════════════════════════
+   FAVOURITES
+═══════════════════════════════════════════════════════════ */
+const FAV_KEY='wc26_favs_v1';
+let favourites=new Set(JSON.parse(localStorage.getItem(FAV_KEY)||'[]'));
+function saveFavs(){try{localStorage.setItem(FAV_KEY,JSON.stringify([...favourites]));}catch(e){}}
+function hasFav(m){return favourites.has(m.home)||favourites.has(m.away);}
+
+function toggleFavCard(name){
+  if(favourites.has(name))favourites.delete(name);else favourites.add(name);
+  saveFavs();renderNav();renderSchedule(false);
+}
+
+function toggleTeamPick(name,btn){
+  if(favourites.has(name))favourites.delete(name);else favourites.add(name);
+  saveFavs();
+  btn.classList.toggle('fav',favourites.has(name));
+  btn.querySelector('.tp-star').textContent=favourites.has(name)?'★':'☆';
+  renderNav();renderSchedule(false);
+}
+
+function clearAllFavs(){
+  favourites.clear();saveFavs();closeTeamsModal();renderNav();renderSchedule(false);
+}
+
+function openTeamsModal(){
+  if(document.getElementById('teamsModal'))return;
+  const t=T[lang];
+  const allT=[];
+  Object.entries(GROUPS).forEach(([g,ts])=>ts.forEach(tm=>allT.push({...tm,g})));
+  allT.sort((a,b)=>(t.teams[a.n]||a.n).localeCompare(t.teams[b.n]||b.n,lang));
+  const items=allT.map(tm=>{
+    const isFav=favourites.has(tm.n);
+    return`<button class="team-pick-btn${isFav?' fav':''}" onclick="toggleTeamPick(${JSON.stringify(tm.n)},this)">
+      <span class="tp-flag">${tm.f}</span>
+      <span class="tp-name">${t.teams[tm.n]||tm.n}</span>
+      <span class="tp-star">${isFav?'★':'☆'}</span>
+    </button>`;
+  }).join('');
+  const ov=document.createElement('div');
+  ov.className='teams-modal-overlay';ov.id='teamsModal';
+  ov.onclick=e=>{if(e.target===ov)closeTeamsModal();};
+  ov.innerHTML=`<div class="teams-modal">
+    <div class="teams-modal-head">
+      <span class="teams-modal-title">⭐ ${t.favTeams}</span>
+      <button class="teams-modal-close" onclick="closeTeamsModal()">${t.favClose}</button>
+    </div>
+    <div class="teams-modal-bar">
+      <button class="group-pill" onclick="clearAllFavs()" style="margin:0;font-size:11px;padding:5px 14px">${t.favClearAll}</button>
+    </div>
+    <div class="teams-modal-body"><div class="teams-grid-modal">${items}</div></div>
+  </div>`;
+  document.body.appendChild(ov);
+}
+
+function closeTeamsModal(){const m=document.getElementById('teamsModal');if(m)m.remove();}
+
+function exportCalendar(){
+  const favMs=MATCHES.filter(m=>hasFav(m))
+    .map(m=>({...m,utcMs:matchUTCMs(m.etDate,m.etTime)}))
+    .sort((a,b)=>a.utcMs-b.utcMs);
+  if(!favMs.length)return;
+  const icsDate=ms=>{const d=new Date(ms);return d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');};
+  const esc=s=>s.replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\r?\n/g,'\\n');
+  let ics='BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//WorldCup2026//Schedule//EN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:World Cup 2026 ⚽ Favourites\r\nX-WR-TIMEZONE:UTC\r\n';
+  favMs.forEach(m=>{
+    const r=toRiyadh(m.etDate,m.etTime);
+    const uid=`wc2026-${m.etDate.replace(' ','')}-${m.home.replace(/[^A-Za-z]/g,'')}-${m.away.replace(/[^A-Za-z]/g,'')}@worldcup.dm7m.com`;
+    ics+=`BEGIN:VEVENT\r\n`;
+    ics+=`UID:${uid}\r\n`;
+    ics+=`DTSTAMP:${icsDate(Date.now())}\r\n`;
+    ics+=`DTSTART:${icsDate(m.utcMs)}\r\n`;
+    ics+=`DTEND:${icsDate(m.utcMs+7200000)}\r\n`;
+    ics+=`SUMMARY:${esc(`⚽ ${m.home} vs ${m.away} · Group ${m.group}`)}\r\n`;
+    ics+=`LOCATION:${esc(`${m.city}, ${m.c}`)}\r\n`;
+    ics+=`DESCRIPTION:${esc(`Riyadh time: ${r.str}\nET: ${m.etTime} ${m.etDate}\nGroup ${m.group}`)}\r\n`;
+    ics+=`END:VEVENT\r\n`;
+  });
+  ics+='END:VCALENDAR';
+  const blob=new Blob([ics],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='worldcup2026-favourites.ics';a.click();
+  URL.revokeObjectURL(url);
+}
 
 /* ═══════════════════════════════════════════════════════════
    LIVE DATA LAYER
@@ -858,14 +973,42 @@ function renderNav(){
     b.className='group-pill'+(filter===g?' active':'');
     b.textContent=`${t.group} ${g}`;b.onclick=()=>{filter=g;renderAll();};nav.appendChild(b);
   });
+  // Favourites filter pill + export (only when teams are starred)
+  if(favourites.size>0){
+    const fp=document.createElement('button');
+    fp.className='group-pill'+(filter==='favs'?' active':'');
+    fp.style.cssText='border-color:rgba(201,162,39,.5);';
+    fp.textContent=`⭐ ${t.favFilter} (${favourites.size})`;
+    fp.onclick=()=>{filter='favs';renderAll();};nav.appendChild(fp);
+    const ep=document.createElement('button');
+    ep.className='group-pill';
+    ep.style.cssText='border-color:rgba(201,162,39,.3);color:var(--accent);';
+    ep.textContent=t.favExport;
+    ep.onclick=exportCalendar;nav.appendChild(ep);
+  }
+  // Teams picker button (always visible)
+  const tb=document.createElement('button');
+  tb.className='group-pill';
+  tb.style.cssText='margin-inline-start:auto;';
+  tb.textContent=`⭐ ${t.favTeams}`;
+  tb.onclick=openTeamsModal;nav.appendChild(tb);
 }
 
 function renderSchedule(doScroll){
   const t=T[lang],con=document.getElementById('mainContainer');
   con.innerHTML='';
-  const list=(filter==='all'?MATCHES:MATCHES.filter(m=>m.group===filter))
+  const list=(filter==='all'?MATCHES:filter==='favs'?MATCHES.filter(m=>hasFav(m)):MATCHES.filter(m=>m.group===filter))
     .map(m=>({...m,r:toRiyadh(m.etDate,m.etTime)}))
     .sort((a,b)=>sortK(a.r)-sortK(b.r));
+
+  if(filter==='favs'&&list.length===0){
+    con.innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--muted)">
+      <div style="font-size:48px;margin-bottom:16px">⭐</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:12px;color:var(--text)">${t.favNone}</div>
+      <button class="group-pill" onclick="openTeamsModal()" style="font-size:13px">⭐ ${t.favTeams}</button>
+    </div>`;
+    return;
+  }
 
   const byDate={},order=[];
   list.forEach(m=>{const k=dayKey(m.r);if(!byDate[k]){byDate[k]=[];order.push(k);}byDate[k].push(m);});
@@ -887,14 +1030,16 @@ function renderSchedule(doScroll){
     day.forEach(m=>{
       const r=m.r,sc=getMatchScore(m),fin=!!sc;
       const card=document.createElement('div');
-      card.className=`match-card ${tClass(r.h)}${fin?' finished':''}`;
+      card.className=`match-card ${tClass(r.h)}${fin?' finished':''}${hasFav(m)?' fav-match':''}`;
+
+      const starBtn=(name)=>`<button class="star-btn${favourites.has(name)?' starred':''}" onclick="toggleFavCard(${JSON.stringify(name)})" title="${favourites.has(name)?'★':'☆'}">${favourites.has(name)?'★':'☆'}</button>`;
 
       let mid;
       if(fin){
         mid=`<div class="result-col">
           <div class="result-teams">
-            <div class="result-team"><span class="flag">${m.hf}</span><span class="team-name">${t.teams[m.home]||m.home}</span></div>
-            <div class="result-team" style="margin-top:4px"><span class="flag">${m.af}</span><span class="team-name">${t.teams[m.away]||m.away}</span></div>
+            <div class="result-team"><span class="flag">${m.hf}</span><span class="team-name">${t.teams[m.home]||m.home}</span>${starBtn(m.home)}</div>
+            <div class="result-team" style="margin-top:4px"><span class="flag">${m.af}</span><span class="team-name">${t.teams[m.away]||m.away}</span>${starBtn(m.away)}</div>
           </div>
           <div class="result-score">
             <div class="score-nums">${sc[0]}<span class="score-sep"> – </span>${sc[1]}</div>
@@ -903,9 +1048,9 @@ function renderSchedule(doScroll){
         </div>`;
       } else {
         mid=`<div class="match-col">
-          <div class="team"><span class="flag">${m.hf}</span><span class="team-name">${t.teams[m.home]||m.home}</span></div>
+          <div class="team"><span class="flag">${m.hf}</span><span class="team-name">${t.teams[m.home]||m.home}</span>${starBtn(m.home)}</div>
           <div class="vs-divider">${t.vs}</div>
-          <div class="team"><span class="flag">${m.af}</span><span class="team-name">${t.teams[m.away]||m.away}</span></div>
+          <div class="team"><span class="flag">${m.af}</span><span class="team-name">${t.teams[m.away]||m.away}</span>${starBtn(m.away)}</div>
         </div>`;
       }
 
