@@ -858,13 +858,16 @@ function renderSchedule(doScroll){
   });
 
   if(doScroll&&todaySec){
-    // Use setTimeout so DOM fully settles (survives live-fetch re-render)
+    const todayDateKey=todaySec.dataset.k;
     setTimeout(()=>{
+      // Re-query after delay so we always get the live DOM element
+      const el=document.querySelector(`.group-section[data-k="${todayDateKey}"]`);
+      if(!el)return;
       const tabsH=document.getElementById('viewTabs')?.offsetHeight||56;
       const navH=document.getElementById('groupsNav')?.offsetHeight||60;
-      const top=todaySec.getBoundingClientRect().top+window.scrollY-tabsH-navH-12;
+      const top=el.getBoundingClientRect().top+window.scrollY-tabsH-navH-12;
       window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
-    },120);
+    },400);
   }
 }
 
