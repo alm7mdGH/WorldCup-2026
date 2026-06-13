@@ -288,6 +288,26 @@
   .match-card.fav-match{border-color:rgba(201,162,39,.45);box-shadow:0 0 14px rgba(201,162,39,.09);}
   .match-card.fav-match::before{background:var(--accent)!important;}
 
+  /* ── Favs tab page ── */
+  .favs-page{max-width:1400px;margin:0 auto;padding:32px 40px 80px;}
+  .favs-top{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 28px;margin-bottom:28px;}
+  .favs-top-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px;}
+  .favs-top-title{font-size:15px;font-weight:700;color:var(--accent);}
+  .favs-export-btn{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;border:1px solid rgba(201,162,39,.4);background:rgba(201,162,39,.08);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+  .favs-export-btn:hover{background:rgba(201,162,39,.16);border-color:var(--accent);}
+  .favs-export-btn:disabled{opacity:.4;cursor:default;}
+  .favs-clear-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+  .favs-clear-btn:hover{border-color:var(--red);color:var(--red);}
+  .favs-teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:7px;}
+  .favs-no-matches{text-align:center;padding:48px 20px;color:var(--muted);}
+  .favs-no-matches .fnm-icon{font-size:44px;margin-bottom:14px;}
+  .favs-no-matches .fnm-msg{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;}
+  .favs-matches-section{margin-top:0;}
+  .favs-matches-header{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+  body.ar .favs-matches-header{letter-spacing:0;text-transform:none;font-size:13px;}
+  .favs-matches-header::after{content:'';flex:1;height:1px;background:var(--border);}
+  @media(max-width:768px){.favs-page{padding:16px 16px 80px;}.favs-top{padding:16px;}.favs-teams-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}}
+
   /* Teams picker modal */
   .teams-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:600;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
   .teams-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:min(660px,95vw);max-height:84vh;display:flex;flex-direction:column;overflow:hidden;}
@@ -348,6 +368,7 @@
     <button class="view-tab active" id="tabSchedule" onclick="setView('schedule')"><span class="tab-icon">📅</span><span id="tabScheduleLabel">الجدول</span></button>
     <button class="view-tab" id="tabStandings" onclick="setView('standings')"><span class="tab-icon">📊</span><span id="tabStandingsLabel">الترتيب</span></button>
     <button class="view-tab" id="tabBracket" onclick="setView('bracket')"><span class="tab-icon">🏆</span><span id="tabBracketLabel">التصفيات</span></button>
+    <button class="view-tab" id="tabFavs" onclick="setView('favs')"><span class="tab-icon">⭐</span><span id="tabFavsLabel">المفضلة</span></button>
   </div>
   <div id="countdownBanner" class="countdown-banner" style="display:none"></div>
 </div>
@@ -358,6 +379,8 @@
 </div>
 
 <div id="bracketView" style="display:none"></div>
+
+<div id="favsView" style="display:none"></div>
 
 <div id="standingsView" style="display:none">
   <div class="standings-page">
@@ -387,8 +410,10 @@ const T={
     etLabel:'ET',
     nextMatch:'Next Match',cdDays:'d',cdHours:'h',cdMins:'m',cdSecs:'s',cdLiveNow:'LIVE NOW',
     tabBracket:'Knockout',
+    tabFavs:'Favourites',
     favTeams:'Favourite Teams',favFilter:'Favourites',favClose:'Done',favClearAll:'Clear all',
     favExport:'📅 Add to Calendar',favNone:'No matches for your favourite teams yet.',
+    favMatchesTitle:'Their Matches',
     bktR32:'Round of 32',bktR16:'Round of 16',bktQF:'Quarter Finals',bktSF:'Semi Finals',bktF:'Final',
     bktTBD:'TBD',bktWinner:'Winner',bktRunnerUp:'Runner-up',bktThird:'3rd Place',bkt3rdMatch:'3rd Place Match',
     stTeam:'Team',stP:'P',stW:'W',stD:'D',stL:'L',stGF:'GF',stGA:'GA',stGD:'GD',stPts:'Pts',
@@ -413,8 +438,10 @@ const T={
     etLabel:'ت.أمريكي',
     nextMatch:'المباراة القادمة',cdDays:'ي',cdHours:'س',cdMins:'د',cdSecs:'ث',cdLiveNow:'مباشر الآن',
     tabBracket:'التصفيات',
+    tabFavs:'المفضلة',
     favTeams:'الفرق المفضلة',favFilter:'المفضلة',favClose:'تم',favClearAll:'مسح الكل',
     favExport:'📅 أضف للتقويم',favNone:'لا مباريات للفرق المفضلة بعد.',
+    favMatchesTitle:'مبارياتهم',
     bktR32:'دور الـ32',bktR16:'دور الـ16',bktQF:'ربع النهائي',bktSF:'نصف النهائي',bktF:'النهائي',
     bktTBD:'غير محدد',bktWinner:'صدارة',bktRunnerUp:'وصافة',bktThird:'المركز الثالث',bkt3rdMatch:'مباراة الثالث',
     stTeam:'المنتخب',stP:'ل',stW:'ف',stD:'ت',stL:'خ',stGF:'له',stGA:'عليه',stGD:'فارق',stPts:'نقاط',
@@ -554,7 +581,9 @@ function hasFav(m){return favourites.has(m.home)||favourites.has(m.away);}
 
 function toggleFavCard(name){
   if(favourites.has(name))favourites.delete(name);else favourites.add(name);
-  saveFavs();renderNav();renderSchedule(false);
+  saveFavs();
+  if(currentView==='favs') renderFavsView();
+  else{renderNav();renderSchedule(false);}
 }
 
 function toggleTeamPick(name,btn){
@@ -566,7 +595,9 @@ function toggleTeamPick(name,btn){
 }
 
 function clearAllFavs(){
-  favourites.clear();saveFavs();closeTeamsModal();renderNav();renderSchedule(false);
+  favourites.clear();saveFavs();closeTeamsModal();
+  if(currentView==='favs') renderFavsView();
+  else{renderNav();renderSchedule(false);}
 }
 
 function openTeamsModal(){
@@ -577,7 +608,7 @@ function openTeamsModal(){
   allT.sort((a,b)=>(t.teams[a.n]||a.n).localeCompare(t.teams[b.n]||b.n,lang));
   const items=allT.map(tm=>{
     const isFav=favourites.has(tm.n);
-    return`<button class="team-pick-btn${isFav?' fav':''}" onclick="toggleTeamPick(${JSON.stringify(tm.n)},this)">
+    return`<button class="team-pick-btn${isFav?' fav':''}" onclick="toggleTeamPick('${tm.n.replace(/'/g,"\\'")}',this)">
       <span class="tp-flag">${tm.f}</span>
       <span class="tp-name">${t.teams[tm.n]||tm.n}</span>
       <span class="tp-star">${isFav?'★':'☆'}</span>
@@ -973,25 +1004,6 @@ function renderNav(){
     b.className='group-pill'+(filter===g?' active':'');
     b.textContent=`${t.group} ${g}`;b.onclick=()=>{filter=g;renderAll();};nav.appendChild(b);
   });
-  // Favourites filter pill + export (only when teams are starred)
-  if(favourites.size>0){
-    const fp=document.createElement('button');
-    fp.className='group-pill'+(filter==='favs'?' active':'');
-    fp.style.cssText='border-color:rgba(201,162,39,.5);';
-    fp.textContent=`⭐ ${t.favFilter} (${favourites.size})`;
-    fp.onclick=()=>{filter='favs';renderAll();};nav.appendChild(fp);
-    const ep=document.createElement('button');
-    ep.className='group-pill';
-    ep.style.cssText='border-color:rgba(201,162,39,.3);color:var(--accent);';
-    ep.textContent=t.favExport;
-    ep.onclick=exportCalendar;nav.appendChild(ep);
-  }
-  // Teams picker button (always visible)
-  const tb=document.createElement('button');
-  tb.className='group-pill';
-  tb.style.cssText='margin-inline-start:auto;';
-  tb.textContent=`⭐ ${t.favTeams}`;
-  tb.onclick=openTeamsModal;nav.appendChild(tb);
 }
 
 function renderSchedule(doScroll){
@@ -1032,7 +1044,7 @@ function renderSchedule(doScroll){
       const card=document.createElement('div');
       card.className=`match-card ${tClass(r.h)}${fin?' finished':''}${hasFav(m)?' fav-match':''}`;
 
-      const starBtn=(name)=>`<button class="star-btn${favourites.has(name)?' starred':''}" onclick="toggleFavCard(${JSON.stringify(name)})" title="${favourites.has(name)?'★':'☆'}">${favourites.has(name)?'★':'☆'}</button>`;
+      const starBtn=(name)=>`<button class="star-btn${favourites.has(name)?' starred':''}" onclick="toggleFavCard('${name.replace(/'/g,"\\'")}')">${favourites.has(name)?'★':'☆'}</button>`;
 
       let mid;
       if(fin){
@@ -1105,16 +1117,119 @@ function scrollToToday(){
   },200);
 }
 
+function renderFavsView(){
+  const t=T[lang];
+  const page=document.getElementById('favsView');
+
+  // Teams picker grid
+  const allT=[];
+  Object.entries(GROUPS).forEach(([g,ts])=>ts.forEach(tm=>allT.push({...tm,g})));
+  allT.sort((a,b)=>(t.teams[a.n]||a.n).localeCompare(t.teams[b.n]||b.n,lang));
+  const teamsHtml=allT.map(tm=>{
+    const isFav=favourites.has(tm.n);
+    return`<button class="team-pick-btn${isFav?' fav':''}" onclick="toggleTeamPick('${tm.n.replace(/'/g,"\\'")}',this)">
+      <span class="tp-flag">${tm.f}</span>
+      <span class="tp-name">${t.teams[tm.n]||tm.n}</span>
+      <span class="tp-star">${isFav?'★':'☆'}</span>
+    </button>`;
+  }).join('');
+
+  // Filtered matches list
+  const favMs=MATCHES.filter(m=>hasFav(m))
+    .map(m=>({...m,r:toRiyadh(m.etDate,m.etTime)}))
+    .sort((a,b)=>sortK(a.r)-sortK(b.r));
+
+  let matchesHtml='';
+  if(favMs.length===0){
+    matchesHtml=`<div class="favs-no-matches">
+      <div class="fnm-icon">⭐</div>
+      <div class="fnm-msg">${t.favNone}</div>
+    </div>`;
+  } else {
+    const byDate={},order=[];
+    favMs.forEach(m=>{const k=dayKey(m.r);if(!byDate[k]){byDate[k]=[];order.push(k);}byDate[k].push(m);});
+    const tk=todayK();
+    matchesHtml=`<div class="favs-matches-header">${t.favMatchesTitle}</div>`;
+    order.forEach(k=>{
+      const day=byDate[k],s=day[0].r,isToday=k===tk;
+      const cnt=day.length,cntLbl=`${cnt} ${cnt===1?t.match1:t.matchN}`;
+      matchesHtml+=`<div class="group-section">
+        <div class="group-header">
+          <div class="group-badge">${dayLabel(s,lang)}</div>
+          ${isToday?`<span class="today-marker">${t.today}</span>`:''}
+          <span class="cnt-label">${cntLbl}</span>
+        </div>
+        <div class="matches-grid">`;
+      day.forEach(m=>{
+        const r=m.r,sc=getMatchScore(m),fin=!!sc;
+        const starBtn=(name)=>`<button class="star-btn${favourites.has(name)?' starred':''}" onclick="toggleFavCard('${name.replace(/'/g,"\\'")}');renderFavsView()">${favourites.has(name)?'★':'☆'}</button>`;
+        let mid;
+        if(fin){
+          mid=`<div class="result-col">
+            <div class="result-teams">
+              <div class="result-team"><span class="flag">${m.hf}</span><span class="team-name">${t.teams[m.home]||m.home}</span>${starBtn(m.home)}</div>
+              <div class="result-team" style="margin-top:4px"><span class="flag">${m.af}</span><span class="team-name">${t.teams[m.away]||m.away}</span>${starBtn(m.away)}</div>
+            </div>
+            <div class="result-score">
+              <div class="score-nums">${sc[0]}<span class="score-sep"> – </span>${sc[1]}</div>
+              <span class="ft-badge">${t.ft}</span>
+            </div>
+          </div>`;
+        } else {
+          mid=`<div class="match-col">
+            <div class="team"><span class="flag">${m.hf}</span><span class="team-name">${t.teams[m.home]||m.home}</span>${starBtn(m.home)}</div>
+            <div class="vs-divider">${t.vs}</div>
+            <div class="team"><span class="flag">${m.af}</span><span class="team-name">${t.teams[m.away]||m.away}</span>${starBtn(m.away)}</div>
+          </div>`;
+        }
+        matchesHtml+=`<div class="match-card ${tClass(r.h)}${fin?' finished':''} fav-match">
+          <div class="time-col">
+            <div class="riyadh-time">${r.str}</div>
+            <div class="time-lbl">${tLabel(r.h,lang)}</div>
+            <div class="et-time">${m.etTime} ${t.etLabel} · ${m.etDate}</div>
+            ${fin?'':wBadge(r.h,lang)}
+          </div>
+          ${mid}
+          <div class="venue-col">
+            <div class="grp-label">${t.group} ${m.group}</div>
+            <div class="venue-city">${t.cities[m.city]||m.city}</div>
+            <div class="venue-cty">${m.c}</div>
+          </div>
+        </div>`;
+      });
+      matchesHtml+='</div></div>';
+    });
+  }
+
+  const exportDisabled=favourites.size===0?' disabled':'';
+  page.innerHTML=`<div class="favs-page">
+    <div class="favs-top">
+      <div class="favs-top-head">
+        <span class="favs-top-title">⭐ ${t.favTeams}</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${favourites.size>0?`<button class="favs-clear-btn" onclick="clearAllFavs();renderFavsView()">${t.favClearAll}</button>`:''}
+          <button class="favs-export-btn"${exportDisabled} onclick="exportCalendar()">${t.favExport}</button>
+        </div>
+      </div>
+      <div class="favs-teams-grid">${teamsHtml}</div>
+    </div>
+    <div class="favs-matches-section">${matchesHtml}</div>
+  </div>`;
+}
+
 function setView(v){
   currentView = v;
   document.getElementById('scheduleView').style.display = v==='schedule' ? '' : 'none';
   document.getElementById('standingsView').style.display = v==='standings' ? '' : 'none';
   document.getElementById('bracketView').style.display = v==='bracket' ? '' : 'none';
+  document.getElementById('favsView').style.display = v==='favs' ? '' : 'none';
   document.getElementById('tabSchedule').classList.toggle('active', v==='schedule');
   document.getElementById('tabStandings').classList.toggle('active', v==='standings');
   document.getElementById('tabBracket').classList.toggle('active', v==='bracket');
+  document.getElementById('tabFavs').classList.toggle('active', v==='favs');
   if(v==='standings'){renderStandingsPage();window.scrollTo({top:0,behavior:'smooth'});}
   else if(v==='bracket'){renderBracket();window.scrollTo({top:0,behavior:'smooth'});}
+  else if(v==='favs'){renderFavsView();window.scrollTo({top:0,behavior:'smooth'});}
   else{renderAll(true);}
 }
 
@@ -1167,6 +1282,7 @@ function updateStatic(){updateLiveIndicator();
   document.getElementById('tabScheduleLabel').textContent=t.tabSchedule;
   document.getElementById('tabStandingsLabel').textContent=t.tabStandings;
   document.getElementById('tabBracketLabel').textContent=t.tabBracket;
+  document.getElementById('tabFavsLabel').textContent=t.tabFavs;
   document.querySelector('.leg-morning').textContent=t.legMorning;
   document.querySelector('.leg-afternoon').textContent=t.legAfternoon;
   document.querySelector('.leg-evening').textContent=t.legEvening;
@@ -1186,6 +1302,7 @@ function setLang(l){
   updateStatic();
   if(currentView==='standings') renderStandingsPage();
   else if(currentView==='bracket') renderBracket();
+  else if(currentView==='favs') renderFavsView();
   else renderAll(false);
   renderCountdown();
 }
