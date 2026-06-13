@@ -236,6 +236,12 @@
   </div>
 </div>
 
+<div id="liveBar" style="display:flex;align-items:center;gap:8px;padding:6px 28px;background:var(--surface);border-bottom:1px solid var(--border);font-size:11px;color:var(--muted);">
+  <div id="liveDot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background .4s;"></div>
+  <span id="liveStatusTxt">جارٍ جلب آخر النتائج...</span>
+</div>
+<style>body.en #liveBar{justify-content:flex-end;}body.ar #liveBar{justify-content:flex-start;}</style>
+
 <header class="hero">
   <div class="hero-eyebrow" id="eyebrow">⚽ دليل المشاهدة الشخصي</div>
   <h1 id="heroTitle">كأس العالم FIFA<span>2026</span></h1>
@@ -281,6 +287,7 @@ const T={
     sub:'All Group Stage Matches · Kick-off Times in <strong>Riyadh (AST, UTC+3)</strong> · June 11–27',
     allDates:'All Dates',group:'Group',match1:'match',matchN:'matches',vs:'VS',
     today:'Today',ft:'FT',tabSchedule:'Schedule',tabStandings:'Standings',noResults:'No results yet',
+    liveUpdated:'Results auto-updated',liveStale:'Showing cached results',liveLoading:'Fetching latest results…',liveFailed:'Live update unavailable',
     standingsTitle:g=>`Group ${g} Standings`,
     morning:'🌤 Morning',afternoon:'☀️ Afternoon',evening:'🌆 Evening',late:'🌙 Late Night',overnight:'😴 Overnight',
     bGreat:'✅ Great',bMorning:'🌅 Morning',bLate:'🌙 Late',bOvernight:'😴 Overnight',
@@ -300,6 +307,7 @@ const T={
     sub:'جميع مباريات دور المجموعات · مواعيد الانطلاق بتوقيت <strong>الرياض (AST، UTC+3)</strong> · ١١ – ٢٧ يونيو',
     allDates:'كل الأيام',group:'المجموعة',match1:'مباراة',matchN:'مباريات',vs:'ضد',
     today:'اليوم',ft:'انتهت',tabSchedule:'الجدول',tabStandings:'الترتيب',noResults:'لا نتائج بعد',
+    liveUpdated:'تم تحديث النتائج تلقائياً',liveStale:'يتم عرض نتائج مخزنة',liveLoading:'جارٍ جلب آخر النتائج...',liveFailed:'التحديث التلقائي غير متاح',
     standingsTitle:g=>`ترتيب المجموعة ${g}`,
     morning:'🌤 الصباح',afternoon:'☀️ بعد الظهر',evening:'🌆 المساء',late:'🌙 آخر الليل',overnight:'😴 الفجر',
     bGreat:'✅ ممتاز',bMorning:'🌅 الصباح',bLate:'🌙 متأخر',bOvernight:'😴 الفجر',
@@ -326,13 +334,13 @@ const MATCHES=[
   {group:'A',etDate:'Jun 11',etTime:'3:00 PM',home:'Mexico',hf:'🇲🇽',away:'South Africa',af:'🇿🇦',city:'Mexico City',c:'MEX',score:[2,0]},
   {group:'A',etDate:'Jun 11',etTime:'10:00 PM',home:'South Korea',hf:'🇰🇷',away:'Czechia',af:'🇨🇿',city:'Guadalajara',c:'MEX',score:[2,1]},
   // ── Jun 12 ──────────────────────────────────────────
-  {group:'B',etDate:'Jun 12',etTime:'3:00 PM',home:'Canada',hf:'🇨🇦',away:'Bosnia & Herz.',af:'🇧🇦',city:'Toronto',c:'CAN'},
-  {group:'D',etDate:'Jun 12',etTime:'9:00 PM',home:'USA',hf:'🇺🇸',away:'Paraguay',af:'🇵🇾',city:'Los Angeles',c:'USA'},
+  {group:'B',etDate:'Jun 12',etTime:'3:00 PM',home:'Canada',hf:'🇨🇦',away:'Bosnia & Herz.',af:'🇧🇦',city:'Toronto',c:'CAN',score:[1,1]},
+  {group:'D',etDate:'Jun 12',etTime:'9:00 PM',home:'USA',hf:'🇺🇸',away:'Paraguay',af:'🇵🇾',city:'Los Angeles',c:'USA',score:[4,1]},
   // ── Jun 13 ──────────────────────────────────────────
   {group:'B',etDate:'Jun 13',etTime:'3:00 PM',home:'Qatar',hf:'🇶🇦',away:'Switzerland',af:'🇨🇭',city:'San Francisco',c:'USA'},
   {group:'C',etDate:'Jun 13',etTime:'6:00 PM',home:'Brazil',hf:'🇧🇷',away:'Morocco',af:'🇲🇦',city:'New York',c:'USA'},
   {group:'C',etDate:'Jun 13',etTime:'9:00 PM',home:'Haiti',hf:'🇭🇹',away:'Scotland',af:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',city:'Boston',c:'USA'},
-  {group:'D',etDate:'Jun 13',etTime:'12:00 AM',home:'Australia',hf:'🇦🇺',away:'Türkiye',af:'🇹🇷',city:'Vancouver',c:'CAN'},
+  {group:'D',etDate:'Jun 13',etTime:'9:00 PM',home:'Australia',hf:'🇦🇺',away:'Türkiye',af:'🇹🇷',city:'Vancouver',c:'CAN'},
   // ── Jun 14 ──────────────────────────────────────────
   {group:'E',etDate:'Jun 14',etTime:'1:00 PM',home:'Germany',hf:'🇩🇪',away:'Curaçao',af:'🇨🇼',city:'Houston',c:'USA'},
   {group:'F',etDate:'Jun 14',etTime:'4:00 PM',home:'Netherlands',hf:'🇳🇱',away:'Japan',af:'🇯🇵',city:'Dallas',c:'USA'},
@@ -362,12 +370,12 @@ const MATCHES=[
   {group:'D',etDate:'Jun 19',etTime:'3:00 PM',home:'USA',hf:'🇺🇸',away:'Australia',af:'🇦🇺',city:'Seattle',c:'USA'},
   {group:'C',etDate:'Jun 19',etTime:'3:00 PM',home:'Scotland',hf:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',away:'Morocco',af:'🇲🇦',city:'Boston',c:'USA'},
   {group:'C',etDate:'Jun 19',etTime:'9:00 PM',home:'Brazil',hf:'🇧🇷',away:'Haiti',af:'🇭🇹',city:'Philadelphia',c:'USA'},
-  {group:'D',etDate:'Jun 19',etTime:'12:00 AM',home:'Paraguay',hf:'🇵🇾',away:'Türkiye',af:'🇹🇷',city:'San Francisco',c:'USA'},
+  {group:'D',etDate:'Jun 19',etTime:'9:00 PM',home:'Türkiye',hf:'🇹🇷',away:'Paraguay',af:'🇵🇾',city:'San Francisco',c:'USA'},
   // ── Jun 20 ──────────────────────────────────────────
   {group:'F',etDate:'Jun 20',etTime:'1:00 PM',home:'Netherlands',hf:'🇳🇱',away:'Sweden',af:'🇸🇪',city:'Houston',c:'USA'},
   {group:'E',etDate:'Jun 20',etTime:'4:00 PM',home:'Germany',hf:'🇩🇪',away:'Ivory Coast',af:'🇨🇮',city:'Toronto',c:'CAN'},
   {group:'E',etDate:'Jun 20',etTime:'8:00 PM',home:'Ecuador',hf:'🇪🇨',away:'Curaçao',af:'🇨🇼',city:'Kansas City',c:'USA'},
-  {group:'F',etDate:'Jun 20',etTime:'12:00 AM',home:'Tunisia',hf:'🇹🇳',away:'Japan',af:'🇯🇵',city:'Monterrey',c:'MEX'},
+  {group:'F',etDate:'Jun 20',etTime:'10:00 PM',home:'Tunisia',hf:'🇹🇳',away:'Japan',af:'🇯🇵',city:'Monterrey',c:'MEX'},
   // ── Jun 21 ──────────────────────────────────────────
   {group:'H',etDate:'Jun 21',etTime:'12:00 PM',home:'Spain',hf:'🇪🇸',away:'Saudi Arabia',af:'🇸🇦',city:'Atlanta',c:'USA'},
   {group:'G',etDate:'Jun 21',etTime:'3:00 PM',home:'Belgium',hf:'🇧🇪',away:'Iran',af:'🇮🇷',city:'Los Angeles',c:'USA'},
@@ -435,6 +443,236 @@ const GROUPS={
 let lang='ar', filter='all';
 
 /* ═══════════════════════════════════════════════════════════
+   LIVE DATA LAYER
+   Fetches scores from openfootball (CORS-open, free, ~12h lag)
+   and worldcup26.ir (real-time, may have CORS issues).
+   Falls back to hardcoded scores silently.
+   Cache: 10 min in sessionStorage per tab session.
+═══════════════════════════════════════════════════════════ */
+
+// liveScores: key = "home|away" (canonical names) → [hg, ag]
+let liveScores = {};
+let dataFreshness = 'loading'; // 'loading' | 'live' | 'stale' | 'failed'
+let liveUpdatedAt = null;
+
+const CACHE_KEY = 'wc26_live_v3';
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+// Map all known openfootball aliases → our canonical team names
+const TEAM_ALIASES = {
+  // Openfootball placeholder names
+  'uefa path a winner': 'Bosnia & Herz.',
+  'uefa path b winner': 'Sweden',
+  'uefa path c winner': 'Türkiye',
+  'uefa path d winner': 'Czechia',
+  // Common spelling variants
+  'czech republic': 'Czechia',
+  'czechia': 'Czechia',
+  'turkey': 'Türkiye',
+  'turkiye': 'Türkiye',
+  'ivory coast': 'Ivory Coast',
+  "cote d'ivoire": 'Ivory Coast',
+  "côte d'ivoire": 'Ivory Coast',
+  'bosnia': 'Bosnia & Herz.',
+  'bosnia and herzegovina': 'Bosnia & Herz.',
+  'bosnia & herzegovina': 'Bosnia & Herz.',
+  'dr congo': 'DR Congo',
+  'congo dr': 'DR Congo',
+  'democratic republic of congo': 'DR Congo',
+  'cape verde': 'Cape Verde',
+  'cabo verde': 'Cape Verde',
+  'new zealand': 'New Zealand',
+  'south africa': 'South Africa',
+  'south korea': 'South Korea',
+  'korea republic': 'South Korea',
+  'saudi arabia': 'Saudi Arabia',
+  'curacao': 'Curaçao',
+  'curaçao': 'Curaçao',
+  'usa': 'USA',
+  'united states': 'USA',
+};
+
+function canonicalTeam(raw) {
+  const low = (raw || '').trim().toLowerCase();
+  return TEAM_ALIASES[low] || raw.trim();
+}
+
+function scoreKey(h, a) {
+  return canonicalTeam(h) + '|' + canonicalTeam(a);
+}
+
+/* Build baseline from hardcoded MATCHES scores */
+function buildBaseline() {
+  const base = {};
+  MATCHES.forEach(m => {
+    if (m.score) base[scoreKey(m.home, m.away)] = m.score;
+  });
+  return base;
+}
+
+/* Parse openfootball worldcup.json */
+function parseOpenFootball(json) {
+  const scores = {};
+  const matches = json.matches || [];
+  matches.forEach(m => {
+    // Score format: score1 / score2 at top level
+    if (m.score1 != null && m.score2 != null) {
+      const k = scoreKey(m.team1, m.team2);
+      scores[k] = [parseInt(m.score1), parseInt(m.score2)];
+    }
+  });
+  return scores;
+}
+
+/* Parse worldcup26.ir /get/games */
+function parseWC26IR(data) {
+  const scores = {};
+  const games = Array.isArray(data) ? data : (data.games || data.matches || data.data || []);
+  games.forEach(g => {
+    const status = (g.status || g.matchStatus || g.match_status || '').toUpperCase();
+    const finished = ['FT','FINISHED','COMPLETED','FULL_TIME','ENDED'].includes(status) || g.finished === true;
+    if (!finished) return;
+    const h = g.home_team || g.homeTeam || g.team1 || g.home || '';
+    const a = g.away_team || g.awayTeam || g.team2 || g.away || '';
+    const hs = g.home_score ?? g.homeScore ?? g.score1 ?? g.goals_home ?? g.score?.home ?? null;
+    const as_ = g.away_score ?? g.awayScore ?? g.score2 ?? g.goals_away ?? g.score?.away ?? null;
+    if (h && a && hs != null && as_ != null) {
+      scores[scoreKey(h, a)] = [parseInt(hs), parseInt(as_)];
+    }
+  });
+  return scores;
+}
+
+function getCached() {
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { ts, scores } = JSON.parse(raw);
+    if (Date.now() - ts < CACHE_TTL) return { scores, ts };
+  } catch(e) {}
+  return null;
+}
+
+function setCache(scores) {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), scores }));
+  } catch(e) {}
+}
+
+function mergeScores(base, fresh) {
+  // fresh overrides base — but only if fresh actually has more/different data
+  return Object.assign({}, base, fresh);
+}
+
+function applyScores(merged) {
+  liveScores = merged;
+}
+
+function updateLiveIndicator() {
+  const dot = document.getElementById('liveDot');
+  const txt = document.getElementById('liveStatusTxt');
+  if (!dot || !txt) return;
+  const t = T[lang];
+  const count = Object.keys(liveScores).length;
+  if (dataFreshness === 'loading') {
+    dot.style.background = 'var(--muted)';
+    dot.style.animation = 'none';
+    txt.textContent = t.liveLoading;
+  } else if (dataFreshness === 'live') {
+    dot.style.background = 'var(--green)';
+    dot.style.animation = 'pulse 2s infinite';
+    const ago = liveUpdatedAt ? Math.round((Date.now()-liveUpdatedAt)/60000) : 0;
+    txt.textContent = t.liveUpdated + (count ? ' · ' + count + ' results' : '') + (ago < 2 ? ' · just now' : ago < 60 ? ' · ' + ago + 'm ago' : '');
+  } else if (dataFreshness === 'stale') {
+    dot.style.background = 'var(--evening)';
+    dot.style.animation = 'none';
+    txt.textContent = t.liveStale;
+  } else {
+    dot.style.background = 'var(--red)';
+    dot.style.animation = 'none';
+    txt.textContent = t.liveFailed;
+  }
+}
+
+async function fetchLiveScores() {
+  const baseline = buildBaseline();
+
+  // Check session cache first (avoids hammering API on filter switches)
+  const cached = getCached();
+  if (cached) {
+    applyScores(mergeScores(baseline, cached.scores));
+    dataFreshness = 'stale';
+    liveUpdatedAt = cached.ts;
+    updateLiveIndicator();
+    renderAll(false); // scores updated silently, no scroll
+    // Still try a fresh fetch in background
+    fetchAndUpdate(baseline);
+    return;
+  }
+
+  // No cache — show baseline immediately, then fetch
+  applyScores(baseline);
+  renderAll(false);
+  fetchAndUpdate(baseline);
+}
+
+async function fetchAndUpdate(baseline) {
+  let freshScores = {};
+  let gotData = false;
+
+  // Source 1: worldcup26.ir (real-time, no auth needed for /get/games)
+  if (!gotData) {
+    try {
+      const r = await Promise.race([
+        fetch('https://worldcup26.ir/get/games', {mode:'cors'}),
+        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 5000))
+      ]);
+      if (r.ok) {
+        const json = await r.json();
+        freshScores = parseWC26IR(json);
+        if (Object.keys(freshScores).length > 0) gotData = true;
+      }
+    } catch(e) { /* CORS blocked or timeout — try next */ }
+  }
+
+  // Source 2: openfootball raw GitHub (~12h lag but CORS-open)
+  if (!gotData) {
+    try {
+      const r = await Promise.race([
+        fetch('https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json'),
+        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 8000))
+      ]);
+      if (r.ok) {
+        const json = await r.json();
+        freshScores = parseOpenFootball(json);
+        if (Object.keys(freshScores).length > 0) gotData = true;
+      }
+    } catch(e) { /* network error */ }
+  }
+
+  if (gotData) {
+    const merged = mergeScores(baseline, freshScores);
+    setCache(freshScores);
+    applyScores(merged);
+    dataFreshness = 'live';
+    liveUpdatedAt = Date.now();
+  } else {
+    // Both failed — use baseline only
+    applyScores(baseline);
+    dataFreshness = Object.keys(baseline).length > 0 ? 'stale' : 'failed';
+  }
+
+  updateLiveIndicator();
+  renderAll(false); // never scroll on live-data re-renders
+}
+
+/* Get score for a match (checks liveScores first) */
+function getMatchScore(m) {
+  const key = m.home + '|' + m.away;
+  return liveScores[key] || null;
+}
+
+/* ═══════════════════════════════════════════════════════════
    TIME UTILS
 ═══════════════════════════════════════════════════════════ */
 function toRiyadh(etDate,etTime){
@@ -480,8 +718,9 @@ function dayLabel(r,l){
 function calcStandings(g){
   const tbl={};
   GROUPS[g].forEach(t=>{tbl[t.n]={n:t.n,f:t.f,p:0,w:0,d:0,l:0,gf:0,ga:0};});
-  MATCHES.filter(m=>m.group===g&&m.score).forEach(m=>{
-    const[hg,ag]=m.score,ht=tbl[m.home],at=tbl[m.away];
+  MATCHES.filter(m=>m.group===g).forEach(m=>{
+    const sc=getMatchScore(m);if(!sc)return;
+    const[hg,ag]=sc,ht=tbl[m.home],at=tbl[m.away];
     if(!ht||!at)return;
     ht.p++;at.p++;ht.gf+=hg;ht.ga+=ag;at.gf+=ag;at.ga+=hg;
     if(hg>ag){ht.w++;at.l++;}else if(hg<ag){at.w++;ht.l++;}else{ht.d++;at.d++;}
@@ -574,7 +813,7 @@ function renderSchedule(doScroll){
 
     const grid=document.createElement('div');grid.className='matches-grid';
     day.forEach(m=>{
-      const r=m.r,fin=!!m.score;
+      const r=m.r,sc=getMatchScore(m),fin=!!sc;
       const card=document.createElement('div');
       card.className=`match-card ${tClass(r.h)}${fin?' finished':''}`;
 
@@ -586,7 +825,7 @@ function renderSchedule(doScroll){
             <div class="result-team" style="margin-top:4px"><span class="flag">${m.af}</span><span class="team-name">${t.teams[m.away]||m.away}</span></div>
           </div>
           <div class="result-score">
-            <div class="score-nums">${m.score[0]}<span class="score-sep"> – </span>${m.score[1]}</div>
+            <div class="score-nums">${sc[0]}<span class="score-sep"> – </span>${sc[1]}</div>
             <span class="ft-badge">${t.ft}</span>
           </div>
         </div>`;
@@ -619,10 +858,13 @@ function renderSchedule(doScroll){
   });
 
   if(doScroll&&todaySec){
-    requestAnimationFrame(()=>{
-      const navH=document.getElementById('groupsNav').offsetHeight;
-      window.scrollTo({top:todaySec.getBoundingClientRect().top+scrollY-navH-20,behavior:'smooth'});
-    });
+    // Use setTimeout so DOM fully settles (survives live-fetch re-render)
+    setTimeout(()=>{
+      const tabsH=document.getElementById('viewTabs')?.offsetHeight||56;
+      const navH=document.getElementById('groupsNav')?.offsetHeight||60;
+      const top=todaySec.getBoundingClientRect().top+window.scrollY-tabsH-navH-12;
+      window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
+    },120);
   }
 }
 
@@ -678,7 +920,7 @@ function renderStandingsPage(){
   });
 }
 
-function updateStatic(){
+function updateStatic(){updateLiveIndicator();
   const t=T[lang];
   document.getElementById('langLabel').textContent=t.langLabel;
   document.getElementById('eyebrow').textContent=t.eyebrow;
@@ -710,7 +952,11 @@ function setLang(l){
 
 function renderAll(doScroll){renderNav();renderSchedule(doScroll!==false);}
 
+// Boot: render immediately with hardcoded scores + scroll, then fetch live data silently
+liveScores = buildBaseline();
 renderAll(true);
+// fetchLiveScores updates scores in background without scrolling
+fetchLiveScores();
 </script>
 </body>
 </html>
