@@ -830,15 +830,15 @@ function getCached() {
   try {
     const raw = sessionStorage.getItem(CACHE_KEY);
     if (!raw) return null;
-    const { ts, scores } = JSON.parse(raw);
-    if (Date.now() - ts < CACHE_TTL) return { scores, ts };
+    const { ts, scores, inProgress } = JSON.parse(raw);
+    if (Date.now() - ts < CACHE_TTL) return { scores, inProgress: inProgress || {}, ts };
   } catch(e) {}
   return null;
 }
 
-function setCache(scores) {
+function setCache(scores, inProgress) {
   try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), scores }));
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), scores, inProgress: inProgress || {} }));
   } catch(e) {}
 }
 
@@ -884,6 +884,7 @@ async function fetchLiveScores() {
   const cached = getCached();
   if (cached) {
     applyScores(mergeScores(baseline, cached.scores));
+    liveInProgress = cached.inProgress; // restore live match scores from cache
     dataFreshness = 'stale';
     liveUpdatedAt = cached.ts;
     updateLiveIndicator();
@@ -938,7 +939,7 @@ async function fetchAndUpdate(baseline) {
 
   if (gotData) {
     const merged = mergeScores(baseline, freshScores);
-    setCache(freshScores);
+    setCache(freshScores, freshInProgress);
     liveScores = merged;
     liveInProgress = freshInProgress;
     dataFreshness = 'live';
