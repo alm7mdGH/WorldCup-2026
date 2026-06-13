@@ -321,7 +321,7 @@
   <div class="view-tabs" id="viewTabs">
     <button class="view-tab active" id="tabSchedule" onclick="setView('schedule')"><span class="tab-icon">📅</span><span id="tabScheduleLabel">الجدول</span></button>
     <button class="view-tab" id="tabStandings" onclick="setView('standings')"><span class="tab-icon">📊</span><span id="tabStandingsLabel">الترتيب</span></button>
-    <button class="view-tab" id="tabBracket" onclick="setView('bracket')"><span class="tab-icon">🏆</span><span id="tabBracketLabel">الكأس</span></button>
+    <button class="view-tab" id="tabBracket" onclick="setView('bracket')"><span class="tab-icon">🏆</span><span id="tabBracketLabel">التصفيات</span></button>
   </div>
   <div id="countdownBanner" class="countdown-banner" style="display:none"></div>
 </div>
@@ -360,7 +360,7 @@ const T={
     footer:'All times in <strong>Riyadh / AST (UTC+3)</strong> · ET + 7 hours',
     etLabel:'ET',
     nextMatch:'Next Match',cdDays:'d',cdHours:'h',cdMins:'m',cdSecs:'s',cdLiveNow:'LIVE NOW',
-    tabBracket:'Bracket',
+    tabBracket:'Knockout',
     bktR32:'Round of 32',bktR16:'Round of 16',bktQF:'Quarter Finals',bktSF:'Semi Finals',bktF:'Final',
     bktTBD:'TBD',bktWinner:'Winner',bktRunnerUp:'Runner-up',bktThird:'3rd Place',bkt3rdMatch:'3rd Place Match',
     stTeam:'Team',stP:'P',stW:'W',stD:'D',stL:'L',stGF:'GF',stGA:'GA',stGD:'GD',stPts:'Pts',
@@ -384,7 +384,7 @@ const T={
     footer:'جميع المواعيد بتوقيت <strong>الرياض / AST (UTC+3)</strong> · فارق ٧ ساعات عن توقيت الساحل الشرقي الأمريكي',
     etLabel:'ت.أمريكي',
     nextMatch:'المباراة القادمة',cdDays:'ي',cdHours:'س',cdMins:'د',cdSecs:'ث',cdLiveNow:'مباشر الآن',
-    tabBracket:'الكأس',
+    tabBracket:'التصفيات',
     bktR32:'دور الـ32',bktR16:'دور الـ16',bktQF:'ربع النهائي',bktSF:'نصف النهائي',bktF:'النهائي',
     bktTBD:'غير محدد',bktWinner:'صدارة',bktRunnerUp:'وصافة',bktThird:'المركز الثالث',bkt3rdMatch:'مباراة الثالث',
     stTeam:'المنتخب',stP:'ل',stW:'ف',stD:'ت',stL:'خ',stGF:'له',stGA:'عليه',stGD:'فارق',stPts:'نقاط',
