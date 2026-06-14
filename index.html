@@ -905,12 +905,12 @@ async function fetchAndUpdate(baseline) {
   let freshInProgress = {};
   let gotData = false;
 
-  // Source 1: worldcup26.ir (real-time, provides live scores)
+  // Source 1a: worldcup26.ir direct (fast, real-time — may be blocked in some regions)
   if (!gotData) {
     try {
       const r = await Promise.race([
         fetch('https://worldcup26.ir/get/games', {mode:'cors'}),
-        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 5000))
+        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 4000))
       ]);
       if (r.ok) {
         const json = await r.json();
@@ -919,7 +919,25 @@ async function fetchAndUpdate(baseline) {
         freshInProgress = parsed.inProgress;
         if (Object.keys(freshScores).length > 0 || Object.keys(freshInProgress).length > 0) gotData = true;
       }
-    } catch(e) { /* CORS blocked or timeout — try next */ }
+    } catch(e) { /* blocked or timeout — try proxy */ }
+  }
+
+  // Source 1b: same API via CORS proxy (fallback for regions that block .ir domains)
+  if (!gotData) {
+    try {
+      const proxyUrl = 'https://corsproxy.io/?url=' + encodeURIComponent('https://worldcup26.ir/get/games');
+      const r = await Promise.race([
+        fetch(proxyUrl),
+        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 6000))
+      ]);
+      if (r.ok) {
+        const json = await r.json();
+        const parsed = parseWC26IR(json);
+        freshScores = parsed.scores;
+        freshInProgress = parsed.inProgress;
+        if (Object.keys(freshScores).length > 0 || Object.keys(freshInProgress).length > 0) gotData = true;
+      }
+    } catch(e) { /* proxy also failed */ }
   }
 
   // Source 2: openfootball raw GitHub (~12h lag but CORS-open, finished only)
