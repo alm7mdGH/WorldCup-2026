@@ -797,6 +797,33 @@ function parseOpenFootball(json) {
   return scores;
 }
 
+/* Parse ESPN scoreboard API */
+function parseESPN(data) {
+  const scores = {};
+  const inProgress = {};
+  const events = data.events || [];
+  events.forEach(e => {
+    const c = (e.competitions || [])[0];
+    if (!c) return;
+    const state = (c.status?.type?.state || '').toLowerCase(); // pre/in/post
+    if (state === 'pre') return;
+    const finished = state === 'post';
+    const live = state === 'in';
+    const teams = c.competitors || [];
+    const home = teams.find(t => t.homeAway === 'home');
+    const away = teams.find(t => t.homeAway === 'away');
+    if (!home || !away) return;
+    const h = home.team?.displayName || '';
+    const a = away.team?.displayName || '';
+    const hs = home.score;
+    const as_ = away.score;
+    if (!h || !a || hs == null || as_ == null) return;
+    if (finished) scores[scoreKey(h, a)] = [parseInt(hs), parseInt(as_)];
+    else if (live) inProgress[scoreKey(h, a)] = [parseInt(hs), parseInt(as_)];
+  });
+  return { scores, inProgress };
+}
+
 /* Parse worldcup26.ir /get/games */
 function parseWC26IR(data) {
   const scores = {};
@@ -905,42 +932,41 @@ async function fetchAndUpdate(baseline) {
   let freshInProgress = {};
   let gotData = false;
 
-  // Source 1a: worldcup26.ir direct (fast, real-time — may be blocked in some regions)
+  // Source 1: ESPN scoreboard API (CORS-open, live + finished, globally accessible)
   if (!gotData) {
     try {
       const r = await Promise.race([
-        fetch('https://worldcup26.ir/get/games', {mode:'cors'}),
-        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 4000))
-      ]);
-      if (r.ok) {
-        const json = await r.json();
-        const parsed = parseWC26IR(json);
-        freshScores = parsed.scores;
-        freshInProgress = parsed.inProgress;
-        if (Object.keys(freshScores).length > 0 || Object.keys(freshInProgress).length > 0) gotData = true;
-      }
-    } catch(e) { /* blocked or timeout — try proxy */ }
-  }
-
-  // Source 1b: same API via CORS proxy (fallback for regions that block .ir domains)
-  if (!gotData) {
-    try {
-      const proxyUrl = 'https://corsproxy.io/?url=' + encodeURIComponent('https://worldcup26.ir/get/games');
-      const r = await Promise.race([
-        fetch(proxyUrl),
+        fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard'),
         new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 6000))
       ]);
       if (r.ok) {
         const json = await r.json();
+        const parsed = parseESPN(json);
+        freshScores = parsed.scores;
+        freshInProgress = parsed.inProgress;
+        if (Object.keys(freshScores).length > 0 || Object.keys(freshInProgress).length > 0) gotData = true;
+      }
+    } catch(e) { /* timeout or network error */ }
+  }
+
+  // Source 2: worldcup26.ir (real-time, may be blocked in some regions)
+  if (!gotData) {
+    try {
+      const r = await Promise.race([
+        fetch('https://worldcup26.ir/get/games', {mode:'cors'}),
+        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 5000))
+      ]);
+      if (r.ok) {
+        const json = await r.json();
         const parsed = parseWC26IR(json);
         freshScores = parsed.scores;
         freshInProgress = parsed.inProgress;
         if (Object.keys(freshScores).length > 0 || Object.keys(freshInProgress).length > 0) gotData = true;
       }
-    } catch(e) { /* proxy also failed */ }
+    } catch(e) { /* blocked or timeout */ }
   }
 
-  // Source 2: openfootball raw GitHub (~12h lag but CORS-open, finished only)
+  // Source 3: openfootball raw GitHub (~12h lag but CORS-open, finished only)
   if (!gotData) {
     try {
       const r = await Promise.race([
