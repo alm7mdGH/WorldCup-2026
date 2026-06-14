@@ -515,11 +515,11 @@ const MATCHES=[
   {group:'B',etDate:'Jun 12',etTime:'3:00 PM',home:'Canada',hf:'🇨🇦',away:'Bosnia & Herz.',af:'🇧🇦',city:'Toronto',c:'CAN',score:[1,1]},
   {group:'D',etDate:'Jun 12',etTime:'9:00 PM',home:'USA',hf:'🇺🇸',away:'Paraguay',af:'🇵🇾',city:'Los Angeles',c:'USA',score:[4,1]},
   // ── Jun 13 ──────────────────────────────────────────
-  {group:'B',etDate:'Jun 13',etTime:'3:00 PM',home:'Qatar',hf:'🇶🇦',away:'Switzerland',af:'🇨🇭',city:'San Francisco',c:'USA'},
-  {group:'C',etDate:'Jun 13',etTime:'6:00 PM',home:'Brazil',hf:'🇧🇷',away:'Morocco',af:'🇲🇦',city:'New York',c:'USA'},
-  {group:'C',etDate:'Jun 13',etTime:'9:00 PM',home:'Haiti',hf:'🇭🇹',away:'Scotland',af:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',city:'Boston',c:'USA'},
+  {group:'B',etDate:'Jun 13',etTime:'3:00 PM',home:'Qatar',hf:'🇶🇦',away:'Switzerland',af:'🇨🇭',city:'San Francisco',c:'USA',score:[1,1]},
+  {group:'C',etDate:'Jun 13',etTime:'6:00 PM',home:'Brazil',hf:'🇧🇷',away:'Morocco',af:'🇲🇦',city:'New York',c:'USA',score:[1,1]},
+  {group:'C',etDate:'Jun 13',etTime:'9:00 PM',home:'Haiti',hf:'🇭🇹',away:'Scotland',af:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',city:'Boston',c:'USA',score:[0,1]},
   // ── Jun 14 ──────────────────────────────────────────
-  {group:'D',etDate:'Jun 14',etTime:'12:00 AM',home:'Australia',hf:'🇦🇺',away:'Türkiye',af:'🇹🇷',city:'Vancouver',c:'CAN'},
+  {group:'D',etDate:'Jun 14',etTime:'12:00 AM',home:'Australia',hf:'🇦🇺',away:'Türkiye',af:'🇹🇷',city:'Vancouver',c:'CAN',score:[2,0]},
   {group:'E',etDate:'Jun 14',etTime:'1:00 PM',home:'Germany',hf:'🇩🇪',away:'Curaçao',af:'🇨🇼',city:'Houston',c:'USA'},
   {group:'F',etDate:'Jun 14',etTime:'4:00 PM',home:'Netherlands',hf:'🇳🇱',away:'Japan',af:'🇯🇵',city:'Dallas',c:'USA'},
   {group:'E',etDate:'Jun 14',etTime:'7:00 PM',home:'Ivory Coast',hf:'🇨🇮',away:'Ecuador',af:'🇪🇨',city:'Philadelphia',c:'USA'},
@@ -1119,6 +1119,12 @@ function renderSchedule(doScroll){
   const byDate={},order=[];
   list.forEach(m=>{const k=dayKey(m.r);if(!byDate[k]){byDate[k]=[];order.push(k);}byDate[k].push(m);});
 
+  // Determine the focus match: live first, then next upcoming
+  const now=Date.now();
+  const focusMatch=list.find(m=>!getMatchScore(m)&&!!getLiveScore(m))
+    ||list.find(m=>{const u=matchUTCMs(m.etDate,m.etTime);return u>now-2*3600*1000&&!getMatchScore(m);});
+  const focusKey=focusMatch?`${focusMatch.home}|${focusMatch.away}`:null;
+
   const tk=todayK();let todaySec=null;
 
   order.forEach(k=>{
@@ -1139,6 +1145,7 @@ function renderSchedule(doScroll){
       const isLive=!fin&&!!lsc;
       const card=document.createElement('div');
       card.className=`match-card ${tClass(r.h)}${fin?' finished':''}${isLive?' live-match':''}${hasFav(m)?' fav-match':''}`;
+      if(focusKey===`${m.home}|${m.away}`)card.id='focusMatchCard';
 
       const starBtn=(name)=>`<button class="star-btn${favourites.has(name)?' starred':''}" onclick="toggleFavCard('${name.replace(/'/g,"\\'")}')">${favourites.has(name)?'★':'☆'}</button>`;
 
@@ -1184,15 +1191,17 @@ function renderSchedule(doScroll){
     if(isToday)todaySec=sec;
   });
 
-  if(doScroll&&todaySec){
-    const todayDateKey=todaySec.dataset.k;
+  if(doScroll){
     setTimeout(()=>{
-      // Re-query after delay so we always get the live DOM element
-      const el=document.querySelector(`.group-section[data-k="${todayDateKey}"]`);
-      if(!el)return;
       const tabsH=document.getElementById('stickyHeader')?.offsetHeight||56;
       const navH=document.getElementById('groupsNav')?.offsetHeight||60;
-      const top=el.getBoundingClientRect().top+window.scrollY-tabsH-navH-12;
+      const offset=tabsH+navH+12;
+      // Prefer scrolling to the live/next match card, fall back to today's section
+      const focusCard=document.getElementById('focusMatchCard');
+      const fallback=todaySec?document.querySelector(`.group-section[data-k="${todaySec.dataset.k}"]`):null;
+      const target=focusCard||fallback;
+      if(!target)return;
+      const top=target.getBoundingClientRect().top+window.scrollY-offset;
       window.scrollTo({top:Math.max(0,top),behavior:'smooth'});
     },400);
   }
