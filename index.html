@@ -932,24 +932,33 @@ async function fetchAndUpdate(baseline) {
   let freshInProgress = {};
   let gotData = false;
 
-  // Source 1: ESPN scoreboard API (CORS-open, live + finished, globally accessible)
-  if (!gotData) {
-    try {
-      const r = await Promise.race([
-        fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard'),
-        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 6000))
-      ]);
-      if (r.ok) {
-        const json = await r.json();
-        const parsed = parseESPN(json);
-        freshScores = parsed.scores;
-        freshInProgress = parsed.inProgress;
-        if ((json.events || []).length > 0) gotData = true; // valid response even if all pre-state
-      }
-    } catch(e) { /* timeout or network error */ }
-  }
+  // ESPN scoreboard API — fetch all tournament dates from Jun 11 to today in parallel
+  // so past results are always current without hardcoding
+  try {
+    const WC_START_MS = Date.UTC(2026, 5, 11); // Jun 11 UTC
+    const nowMs = Date.now();
+    const dates = [];
+    for (let ms = WC_START_MS; ms <= nowMs + 3600000; ms += 86400000) {
+      const d = new Date(ms);
+      dates.push(`${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`);
+    }
+    const fetches = dates.map(dt =>
+      Promise.race([
+        fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=${dt}`),
+        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 8000))
+      ]).then(r => r.ok ? r.json() : null).catch(() => null)
+    );
+    const results = await Promise.all(fetches);
+    results.forEach(json => {
+      if (!json) return;
+      const parsed = parseESPN(json);
+      Object.assign(freshScores, parsed.scores);
+      Object.assign(freshInProgress, parsed.inProgress);
+      if ((json.events || []).length > 0) gotData = true;
+    });
+  } catch(e) { /* network error */ }
 
-  // Source 2: worldcup26.ir (real-time, may be blocked in some regions)
+  // Fallback: worldcup26.ir (real-time, may be blocked in some regions)
   if (!gotData) {
     try {
       const r = await Promise.race([
@@ -959,26 +968,11 @@ async function fetchAndUpdate(baseline) {
       if (r.ok) {
         const json = await r.json();
         const parsed = parseWC26IR(json);
-        freshScores = parsed.scores;
-        freshInProgress = parsed.inProgress;
+        Object.assign(freshScores, parsed.scores);
+        Object.assign(freshInProgress, parsed.inProgress);
         if (Object.keys(freshScores).length > 0 || Object.keys(freshInProgress).length > 0) gotData = true;
       }
     } catch(e) { /* blocked or timeout */ }
-  }
-
-  // Source 3: openfootball raw GitHub (~12h lag but CORS-open, finished only)
-  if (!gotData) {
-    try {
-      const r = await Promise.race([
-        fetch('https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json'),
-        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 8000))
-      ]);
-      if (r.ok) {
-        const json = await r.json();
-        freshScores = parseOpenFootball(json);
-        if (Object.keys(freshScores).length > 0) gotData = true;
-      }
-    } catch(e) { /* network error */ }
   }
 
   if (gotData) {
