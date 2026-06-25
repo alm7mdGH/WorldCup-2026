@@ -1695,6 +1695,7 @@ function startCountdown() {
 }
 
 // Boot: render immediately with hardcoded scores + scroll, then fetch live data silently
+let _lastFetchTs = 0; // must be declared before fetchLiveScores() calls fetchAndUpdate
 liveScores = buildBaseline();
 renderAll(true);
 startCountdown();
@@ -1702,7 +1703,6 @@ fetchLiveScores();
 
 // Re-fetch whenever the tab becomes visible again (fixes browser timer throttling
 // which suspends setTimeout in background tabs, causing stale scores)
-let _lastFetchTs = 0;
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && Date.now() - _lastFetchTs > 60000) {
     _lastFetchTs = Date.now();
