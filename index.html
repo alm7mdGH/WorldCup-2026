@@ -725,7 +725,11 @@ let dataFreshness = 'loading'; // 'loading' | 'live' | 'stale' | 'failed'
 let liveUpdatedAt = null;
 
 function getLiveScore(m){
-  return liveInProgress[m.home+'|'+m.away] ?? liveInProgress[scoreKey(m.home,m.away)] ?? null;
+  const k = scoreKey(m.home, m.away);
+  if (liveInProgress[k]) return liveInProgress[k];
+  const kr = scoreKey(m.away, m.home);
+  if (liveInProgress[kr]) return [liveInProgress[kr][1], liveInProgress[kr][0]];
+  return null;
 }
 
 const CACHE_KEY = 'wc26_live_v3';
@@ -1042,8 +1046,11 @@ function scheduleLiveRefresh() {
 
 /* Get score for a match (checks liveScores first) */
 function getMatchScore(m) {
-  const key = m.home + '|' + m.away;
-  return liveScores[key] || null;
+  const k = scoreKey(m.home, m.away);
+  if (liveScores[k]) return liveScores[k];
+  const kr = scoreKey(m.away, m.home);
+  if (liveScores[kr]) return [liveScores[kr][1], liveScores[kr][0]];
+  return null;
 }
 
 /* ═══════════════════════════════════════════════════════════
