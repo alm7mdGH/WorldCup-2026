@@ -734,6 +734,7 @@ function getLiveScore(m){
 
 const CACHE_KEY = 'wc26_live_v3';
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+const SCORE_CACHE_VERSION = 1; // bump this whenever score parsing logic changes
 
 // Map all known openfootball aliases → our canonical team names
 const TEAM_ALIASES = {
@@ -951,15 +952,19 @@ async function fetchAndUpdate(baseline) {
       const dt = `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`;
       const isToday = dt === todayStr;
 
-      // Past dates: use localStorage cache — finished scores never change
+      // Past dates: use localStorage cache — finished scores never change.
+      // Version check ensures stale cache from old parsing logic is discarded.
       if (!isToday) {
         try {
           const hit = localStorage.getItem(`wc26_d2_${dt}`);
           if (hit) {
-            const {scores} = JSON.parse(hit);
-            Object.assign(freshScores, scores || {});
-            if (Object.keys(scores || {}).length) gotData = true;
-            continue;
+            const entry = JSON.parse(hit);
+            if (entry.v === SCORE_CACHE_VERSION) {
+              Object.assign(freshScores, entry.scores || {});
+              if (Object.keys(entry.scores || {}).length) gotData = true;
+              continue;
+            }
+            // Version mismatch — fall through to re-fetch
           }
         } catch(e) {}
       }
@@ -982,7 +987,7 @@ async function fetchAndUpdate(baseline) {
           if (!isToday) {
             const allPost = json.events.every(e => e.competitions?.[0]?.status?.type?.state === 'post');
             if (allPost && Object.keys(parsed.scores).length) {
-              try { localStorage.setItem(`wc26_d2_${dt}`, JSON.stringify({scores: parsed.scores})); } catch(e) {}
+              try { localStorage.setItem(`wc26_d2_${dt}`, JSON.stringify({v: SCORE_CACHE_VERSION, scores: parsed.scores})); } catch(e) {}
             }
           }
         } catch(e) {}
