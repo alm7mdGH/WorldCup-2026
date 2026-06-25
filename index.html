@@ -763,6 +763,7 @@ const TEAM_ALIASES = {
   'curaçao': 'Curaçao',
   'usa': 'USA',
   'united states': 'USA',
+  'bosnia-herzegovina': 'Bosnia & Herz.',
 };
 
 function canonicalTeam(raw) {
@@ -929,37 +930,64 @@ async function fetchLiveScores() {
 
 async function fetchAndUpdate(baseline) {
   _lastFetchTs = Date.now();
-  let freshScores = {};
-  let freshInProgress = {};
+  const freshScores = {};
+  const freshInProgress = {};
   let gotData = false;
+  const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=';
 
-  // ESPN scoreboard API — fetch all tournament dates from Jun 11 to today in parallel
-  // so past results are always current without hardcoding
   try {
-    const WC_START_MS = Date.UTC(2026, 5, 11); // Jun 11 UTC
+    const WC_START_MS = Date.UTC(2026, 5, 11);
     const nowMs = Date.now();
-    const dates = [];
+    const todayD = new Date(nowMs);
+    const todayStr = `${todayD.getUTCFullYear()}${String(todayD.getUTCMonth()+1).padStart(2,'0')}${String(todayD.getUTCDate()).padStart(2,'0')}`;
+
+    const httpFetches = [];
     for (let ms = WC_START_MS; ms <= nowMs + 3600000; ms += 86400000) {
       const d = new Date(ms);
-      dates.push(`${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`);
-    }
-    const fetches = dates.map(dt =>
-      Promise.race([
-        fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=${dt}`),
-        new Promise((_,rej) => setTimeout(()=>rej(new Error('timeout')), 8000))
-      ]).then(r => r.ok ? r.json() : null).catch(() => null)
-    );
-    const results = await Promise.all(fetches);
-    results.forEach(json => {
-      if (!json) return;
-      const parsed = parseESPN(json);
-      Object.assign(freshScores, parsed.scores);
-      Object.assign(freshInProgress, parsed.inProgress);
-      if ((json.events || []).length > 0) gotData = true;
-    });
-  } catch(e) { /* network error */ }
+      const dt = `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`;
+      const isToday = dt === todayStr;
 
-  // Fallback: worldcup26.ir (real-time, may be blocked in some regions)
+      // Past dates: use localStorage cache — finished scores never change
+      if (!isToday) {
+        try {
+          const hit = localStorage.getItem(`wc26_d_${dt}`);
+          if (hit) {
+            const {scores} = JSON.parse(hit);
+            Object.assign(freshScores, scores || {});
+            if (Object.keys(scores || {}).length) gotData = true;
+            continue;
+          }
+        } catch(e) {}
+      }
+
+      // Fetch from ESPN (today always fresh; past dates only if not cached)
+      httpFetches.push((async () => {
+        try {
+          const r = await Promise.race([
+            fetch(`${ESPN_BASE}${dt}`),
+            new Promise((_,rej) => setTimeout(() => rej(), 8000))
+          ]);
+          if (!r.ok) return;
+          const json = await r.json();
+          if (!(json.events || []).length) return;
+          const parsed = parseESPN(json);
+          Object.assign(freshScores, parsed.scores);
+          Object.assign(freshInProgress, parsed.inProgress);
+          gotData = true;
+          // Cache past dates once all their events are finished (scores are final)
+          if (!isToday) {
+            const allPost = json.events.every(e => e.competitions?.[0]?.status?.type?.state === 'post');
+            if (allPost && Object.keys(parsed.scores).length) {
+              try { localStorage.setItem(`wc26_d_${dt}`, JSON.stringify({scores: parsed.scores})); } catch(e) {}
+            }
+          }
+        } catch(e) {}
+      })());
+    }
+    await Promise.all(httpFetches);
+  } catch(e) {}
+
+  // Fallback: worldcup26.ir (may be blocked in some regions)
   if (!gotData) {
     try {
       const r = await Promise.race([
@@ -973,7 +1001,7 @@ async function fetchAndUpdate(baseline) {
         Object.assign(freshInProgress, parsed.inProgress);
         if (Object.keys(freshScores).length > 0 || Object.keys(freshInProgress).length > 0) gotData = true;
       }
-    } catch(e) { /* blocked or timeout */ }
+    } catch(e) {}
   }
 
   if (gotData) {
@@ -984,9 +1012,9 @@ async function fetchAndUpdate(baseline) {
     dataFreshness = 'live';
     liveUpdatedAt = Date.now();
   } else {
-    liveScores = baseline;
+    // Preserve existing liveScores — don't wipe fetched data on transient failures
     liveInProgress = {};
-    dataFreshness = Object.keys(baseline).length > 0 ? 'stale' : 'failed';
+    dataFreshness = Object.keys(liveScores).length > Object.keys(baseline).length ? 'stale' : 'failed';
   }
 
   updateLiveIndicator();
