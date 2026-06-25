@@ -954,7 +954,7 @@ async function fetchAndUpdate(baseline) {
       // Past dates: use localStorage cache — finished scores never change
       if (!isToday) {
         try {
-          const hit = localStorage.getItem(`wc26_d_${dt}`);
+          const hit = localStorage.getItem(`wc26_d2_${dt}`);
           if (hit) {
             const {scores} = JSON.parse(hit);
             Object.assign(freshScores, scores || {});
@@ -982,7 +982,7 @@ async function fetchAndUpdate(baseline) {
           if (!isToday) {
             const allPost = json.events.every(e => e.competitions?.[0]?.status?.type?.state === 'post');
             if (allPost && Object.keys(parsed.scores).length) {
-              try { localStorage.setItem(`wc26_d_${dt}`, JSON.stringify({scores: parsed.scores})); } catch(e) {}
+              try { localStorage.setItem(`wc26_d2_${dt}`, JSON.stringify({scores: parsed.scores})); } catch(e) {}
             }
           }
         } catch(e) {}
