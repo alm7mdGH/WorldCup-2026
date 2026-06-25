@@ -910,6 +910,21 @@ function updateLiveIndicator() {
   }
 }
 
+function loadPersistentScores() {
+  // Persistent "last known good" snapshot — survives session ends and cache busts
+  try {
+    const raw = localStorage.getItem('wc26_scores_v1');
+    if (!raw) return null;
+    const entry = JSON.parse(raw);
+    if (entry.v === SCORE_CACHE_VERSION) return entry.scores || null;
+  } catch(e) {}
+  return null;
+}
+
+function savePersistentScores(scores) {
+  try { localStorage.setItem('wc26_scores_v1', JSON.stringify({v: SCORE_CACHE_VERSION, scores})); } catch(e) {}
+}
+
 async function fetchLiveScores() {
   const baseline = buildBaseline();
 
@@ -917,18 +932,19 @@ async function fetchLiveScores() {
   const cached = getCached();
   if (cached) {
     applyScores(mergeScores(baseline, cached.scores));
-    liveInProgress = cached.inProgress; // restore live match scores from cache
+    liveInProgress = cached.inProgress;
     dataFreshness = 'stale';
     liveUpdatedAt = cached.ts;
     updateLiveIndicator();
-    renderAll(false); // scores updated silently, no scroll
-    // Still try a fresh fetch in background
+    renderAll(false);
     fetchAndUpdate(baseline);
     return;
   }
 
-  // No cache — show baseline immediately, then fetch
-  applyScores(baseline);
+  // No session cache — load persistent snapshot immediately so scores never blank out
+  const persistent = loadPersistentScores();
+  if (persistent) applyScores(mergeScores(baseline, persistent));
+  else applyScores(baseline);
   renderAll(false);
   fetchAndUpdate(baseline);
 }
@@ -946,14 +962,13 @@ async function fetchAndUpdate(baseline) {
     const todayD = new Date(nowMs);
     const todayStr = `${todayD.getUTCFullYear()}${String(todayD.getUTCMonth()+1).padStart(2,'0')}${String(todayD.getUTCDate()).padStart(2,'0')}`;
 
-    const httpFetches = [];
+    // Collect dates: load past ones from localStorage, queue the rest for HTTP
+    const toFetch = [];
     for (let ms = WC_START_MS; ms <= nowMs + 3600000; ms += 86400000) {
       const d = new Date(ms);
       const dt = `${d.getUTCFullYear()}${String(d.getUTCMonth()+1).padStart(2,'0')}${String(d.getUTCDate()).padStart(2,'0')}`;
       const isToday = dt === todayStr;
 
-      // Past dates: use localStorage cache — finished scores never change.
-      // Version check ensures stale cache from old parsing logic is discarded.
       if (!isToday) {
         try {
           const hit = localStorage.getItem(`wc26_d2_${dt}`);
@@ -962,38 +977,36 @@ async function fetchAndUpdate(baseline) {
             if (entry.v === SCORE_CACHE_VERSION) {
               Object.assign(freshScores, entry.scores || {});
               if (Object.keys(entry.scores || {}).length) gotData = true;
-              continue;
+              continue; // served from cache, skip HTTP
             }
-            // Version mismatch — fall through to re-fetch
           }
         } catch(e) {}
       }
-
-      // Fetch from ESPN (today always fresh; past dates only if not cached)
-      httpFetches.push((async () => {
-        try {
-          const r = await Promise.race([
-            fetch(`${ESPN_BASE}${dt}`),
-            new Promise((_,rej) => setTimeout(() => rej(), 8000))
-          ]);
-          if (!r.ok) return;
-          const json = await r.json();
-          if (!(json.events || []).length) return;
-          const parsed = parseESPN(json);
-          Object.assign(freshScores, parsed.scores);
-          Object.assign(freshInProgress, parsed.inProgress);
-          gotData = true;
-          // Cache past dates once all their events are finished (scores are final)
-          if (!isToday) {
-            const allPost = json.events.every(e => e.competitions?.[0]?.status?.type?.state === 'post');
-            if (allPost && Object.keys(parsed.scores).length) {
-              try { localStorage.setItem(`wc26_d2_${dt}`, JSON.stringify({v: SCORE_CACHE_VERSION, scores: parsed.scores})); } catch(e) {}
-            }
-          }
-        } catch(e) {}
-      })());
+      toFetch.push({dt, isToday});
     }
-    await Promise.all(httpFetches);
+
+    // Fetch sequentially — avoids rate-limiting ESPN with parallel floods
+    for (const {dt, isToday} of toFetch) {
+      try {
+        const r = await Promise.race([
+          fetch(`${ESPN_BASE}${dt}`),
+          new Promise((_,rej) => setTimeout(() => rej(), 8000))
+        ]);
+        if (!r.ok) continue;
+        const json = await r.json();
+        if (!(json.events || []).length) continue;
+        const parsed = parseESPN(json);
+        Object.assign(freshScores, parsed.scores);
+        Object.assign(freshInProgress, parsed.inProgress);
+        gotData = true;
+        if (!isToday) {
+          const allPost = json.events.every(e => e.competitions?.[0]?.status?.type?.state === 'post');
+          if (allPost && Object.keys(parsed.scores).length) {
+            try { localStorage.setItem(`wc26_d2_${dt}`, JSON.stringify({v: SCORE_CACHE_VERSION, scores: parsed.scores})); } catch(e) {}
+          }
+        }
+      } catch(e) {}
+    }
   } catch(e) {}
 
   // Fallback: worldcup26.ir (may be blocked in some regions)
@@ -1016,6 +1029,7 @@ async function fetchAndUpdate(baseline) {
   if (gotData) {
     const merged = mergeScores(baseline, freshScores);
     setCache(freshScores, freshInProgress);
+    savePersistentScores(freshScores); // update last-known-good snapshot
     liveScores = merged;
     liveInProgress = freshInProgress;
     dataFreshness = 'live';
