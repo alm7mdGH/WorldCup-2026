@@ -1520,11 +1520,24 @@ function renderAll(doScroll){renderNav();renderSchedule(doScroll!==false);}
 
 // R32 slot pairs — each entry is [homeSlot, awaySlot]
 // Slots: '1A'=winner group A, '2B'=runner-up group B, '3rd'=best 3rd (TBD)
+// R32 bracket — sourced from official ESPN WC2026 schedule (shortName codes: 2F@BRA, MAR@1F, 3RD@GER …)
 const R32_DEFS = [
-  ['1A','2B'], ['1C','2D'], ['1E','2F'], ['1G','2H'],
-  ['1I','2J'], ['1K','2L'], ['3rd','3rd'], ['3rd','3rd'],
-  ['2A','1B'], ['2C','1D'], ['2E','1F'], ['2G','1H'],
-  ['2I','1J'], ['2K','1L'], ['3rd','3rd'], ['3rd','3rd'],
+  ['2A','2B'],  // Jun 28: South Africa vs Canada
+  ['1C','2F'],  // Jun 29: Brazil vs Group F runner-up
+  ['1E','3rd'], // Jun 29: Germany vs best 3rd (A/B/C/D/F)
+  ['1F','2C'],  // Jun 29: Group F winner vs Morocco
+  ['2E','2I'],  // Jun 30: Group E 2nd vs Group I 2nd
+  ['1I','3rd'], // Jun 30: Group I winner vs best 3rd (C/D/F/G/H)
+  ['1A','3rd'], // Jun 30: Mexico vs best 3rd (C/E/F/H/I)
+  ['1L','3rd'], // Jul 1:  Group L winner vs best 3rd (E/H/I/J/K)
+  ['1G','3rd'], // Jul 1:  Group G winner vs best 3rd (A/E/H/I/J)
+  ['1D','3rd'], // Jul 1:  USA vs best 3rd (B/E/F/I/J)
+  ['1H','2J'],  // Jul 2:  Group H winner vs Group J runner-up
+  ['2K','2L'],  // Jul 2:  Group K runner-up vs Group L runner-up
+  ['1B','3rd'], // Jul 2:  Switzerland vs best 3rd (E/F/G/I/J)
+  ['2D','2G'],  // Jul 3:  Group D runner-up vs Group G runner-up
+  ['1J','2H'],  // Jul 3:  Argentina vs Group H runner-up
+  ['1K','3rd'], // Jul 3:  Group K winner vs best 3rd (D/E/I/J/L)
 ];
 
 function resolveSlotTeam(slot) {
