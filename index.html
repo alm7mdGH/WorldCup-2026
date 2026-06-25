@@ -990,6 +990,8 @@ async function fetchAndUpdate(baseline) {
 
   updateLiveIndicator();
   if(currentView==='favs') renderFavsView();
+  else if(currentView==='standings') renderStandingsPage();
+  else if(currentView==='bracket') renderBracket();
   else renderAll(false);
   scheduleLiveRefresh();
 }
