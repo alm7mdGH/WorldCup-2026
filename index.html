@@ -928,6 +928,7 @@ async function fetchLiveScores() {
 }
 
 async function fetchAndUpdate(baseline) {
+  _lastFetchTs = Date.now();
   let freshScores = {};
   let freshInProgress = {};
   let gotData = false;
@@ -1643,8 +1644,17 @@ function startCountdown() {
 liveScores = buildBaseline();
 renderAll(true);
 startCountdown();
-// fetchLiveScores updates scores in background without scrolling
 fetchLiveScores();
+
+// Re-fetch whenever the tab becomes visible again (fixes browser timer throttling
+// which suspends setTimeout in background tabs, causing stale scores)
+let _lastFetchTs = 0;
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && Date.now() - _lastFetchTs > 60000) {
+    _lastFetchTs = Date.now();
+    fetchAndUpdate(buildBaseline());
+  }
+});
 </script>
 </body>
 </html>
