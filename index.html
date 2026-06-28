@@ -831,6 +831,7 @@ let dataFreshness = 'loading'; // 'loading' | 'live' | 'stale' | 'failed'
 let liveUpdatedAt = null;
 
 function getLiveScore(m){
+  if (!m.home || !m.away) return null;
   const k = scoreKey(m.home, m.away);
   if (liveInProgress[k]) return liveInProgress[k];
   const kr = scoreKey(m.away, m.home);
@@ -878,7 +879,8 @@ const TEAM_ALIASES = {
 };
 
 function canonicalTeam(raw) {
-  const low = (raw || '').trim().toLowerCase();
+  if (!raw) return '';
+  const low = raw.trim().toLowerCase();
   return TEAM_ALIASES[low] || raw.trim();
 }
 
@@ -1171,6 +1173,7 @@ function scheduleLiveRefresh() {
 
 /* Get score for a match (checks liveScores first) */
 function getMatchScore(m) {
+  if (!m.home || !m.away) return null;
   const k = scoreKey(m.home, m.away);
   if (liveScores[k]) return liveScores[k];
   const kr = scoreKey(m.away, m.home);
