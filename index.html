@@ -219,6 +219,8 @@
   .bkt-third-hdr{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;flex-shrink:0;}
   body.ar .bkt-third-hdr{letter-spacing:0;text-transform:none;font-size:10px;}
   .bkt-third-card{width:148px;flex-shrink:0;}
+  .bkt-card-wrap{display:flex;flex-direction:column;flex:1;min-width:0;}
+  .bkt-card-meta{text-align:center;font-size:9px;color:var(--muted);padding:0 6px 3px;white-space:nowrap;}
   .ko-pill{border-color:rgba(201,162,39,.4);}
   @media(max-width:768px){
     .bracket-page{padding:12px 0 100px;}
@@ -1680,12 +1682,17 @@ function bktTeamRow(id, side, sc) {
   return `<div class="bkt-team${won?' bkt-winner':''}"><span class="bkt-flag">${team.flag}</span><span class="bkt-tname">${name}</span>${scHtml}</div>`;
 }
 
-function bktMatchHTML(id, flexVal) {
+function bktMatchHTML(id, flexVal, showMeta) {
+  const m = KO_MATCHES.find(k => k.id === id);
   const h = koTeam(id,'home'), a = koTeam(id,'away');
   const sc = (h && a) ? getMatchScore({home:h.name, away:a.name}) : null;
-  return `<div class="bkt-slot" style="flex:${flexVal}"><div class="bkt-match-card">
+  const metaHtml = showMeta
+    ? `<div class="bkt-card-meta">${m.etDate} · ${m.etTime}</div>`
+    : '';
+  return `<div class="bkt-slot" style="flex:${flexVal}"><div class="bkt-card-wrap">
+    ${metaHtml}<div class="bkt-match-card">
     ${bktTeamRow(id,'home',sc)}${bktTeamRow(id,'away',sc)}
-  </div></div>`;
+  </div></div></div>`;
 }
 
 function renderBracket() {
@@ -1704,7 +1711,7 @@ function renderBracket() {
 
   rounds.forEach((round, ri) => {
     html += `<div class="bkt-col"><div class="bkt-col-label">${round.label}</div><div class="bkt-matches">`;
-    round.ids.forEach(id => { html += bktMatchHTML(id, round.flex); });
+    round.ids.forEach(id => { html += bktMatchHTML(id, round.flex, ri > 0); });
     html += `</div></div>`;
 
     if (ri < rounds.length - 1) {
