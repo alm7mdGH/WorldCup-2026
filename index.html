@@ -179,70 +179,51 @@
 
   /* ── Knockout Bracket ── */
   /* ── Bracket ── */
-  .bracket-page{padding:20px 24px 100px;overflow-x:auto;}
-  .bracket-wrap{display:flex;min-width:1160px;align-items:stretch;gap:0;}
-  /* Column */
-  .bkt-col{display:flex;flex-direction:column;flex:1;min-width:164px;}
-  .bkt-col-label{text-align:center;font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);padding:8px 6px 6px;border-bottom:2px solid var(--accent);margin:0 10px 8px;opacity:.9;}
-  body.ar .bkt-col-label{letter-spacing:0;text-transform:none;font-size:11px;}
+  .bracket-page{padding:20px 16px 100px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .bracket-wrap{display:flex;min-width:1020px;align-items:stretch;}
+  .bkt-col{display:flex;flex-direction:column;flex:1;min-width:148px;}
+  .bkt-col-label{text-align:center;font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);padding:6px 4px 5px;margin:0 6px 10px;border-bottom:1px solid rgba(201,162,39,.35);}
+  body.ar .bkt-col-label{letter-spacing:0;text-transform:none;font-size:10px;}
   .bkt-matches{display:flex;flex-direction:column;flex:1;}
-  .bkt-slot{display:flex;flex-direction:column;align-items:stretch;padding:3px 0;}
-  /* Card */
-  .bkt-match-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:0 10px;flex:1;box-shadow:0 2px 10px rgba(0,0,0,.18);transition:box-shadow .2s;}
-  .bkt-match-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.28);}
-  .bkt-match-card.bkt-played{border-color:rgba(201,162,39,.3);}
-  /* Teams */
-  .bkt-team{display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:12px;font-weight:600;min-height:36px;position:relative;}
+  /* Each slot fills proportional vertical space; card sits centered inside */
+  .bkt-slot{display:flex;align-items:center;justify-content:stretch;}
+  .bkt-match-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin:3px 6px;flex:1;}
+  /* Team row — score on far right */
+  .bkt-team{display:flex;align-items:center;gap:6px;padding:0 8px;height:32px;font-size:11.5px;font-weight:500;position:relative;min-width:0;}
   .bkt-team+.bkt-team{border-top:1px solid var(--border);}
-  .bkt-team.tbd{color:var(--muted);font-weight:400;font-style:italic;}
-  .bkt-team.bkt-winner{background:rgba(201,162,39,.13);color:var(--accent);font-weight:700;}
-  .bkt-team.bkt-winner::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);border-radius:0 2px 2px 0;}
-  body.ar .bkt-team.bkt-winner::before{left:auto;right:0;border-radius:2px 0 0 2px;}
-  .bkt-flag{font-size:17px;flex-shrink:0;line-height:1;}
-  .bkt-tname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:96px;font-size:11.5px;}
-  body.ar .bkt-tname{font-size:12px;}
-  /* Score row */
-  .bkt-score-row{display:flex;align-items:center;justify-content:space-between;padding:4px 10px;background:var(--surface2);border-top:1px solid var(--border);}
-  .bkt-score-home,.bkt-score-away{font-size:14px;font-weight:800;color:var(--text);min-width:18px;text-align:center;}
-  .bkt-score-sep{font-size:11px;font-weight:600;color:var(--muted);padding:0 4px;}
-  .bkt-score-ft{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
-  body.ar .bkt-score-ft{letter-spacing:0;text-transform:none;}
-  /* Meta: date + city */
-  .bkt-meta{text-align:center;font-size:9px;color:var(--muted);padding:3px 8px 4px;letter-spacing:.03em;line-height:1.3;background:var(--bg);}
-  body.ar .bkt-meta{letter-spacing:0;}
-  /* Connectors */
-  .bkt-connectors{display:flex;flex-direction:column;flex-shrink:0;width:20px;}
+  .bkt-team.tbd{color:var(--muted);font-style:italic;font-weight:400;}
+  .bkt-team.bkt-winner{background:rgba(201,162,39,.11);font-weight:700;}
+  .bkt-flag{font-size:15px;flex-shrink:0;line-height:1;}
+  .bkt-tname{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;color:var(--text);}
+  .bkt-team.bkt-winner .bkt-tname{color:var(--accent);}
+  .bkt-team.tbd .bkt-tname{color:var(--muted);}
+  .bkt-sc{font-size:12px;font-weight:700;color:var(--text);flex-shrink:0;min-width:14px;text-align:right;}
+  .bkt-team.bkt-winner .bkt-sc{color:var(--accent);}
+  /* Connectors — thin single lines */
+  .bkt-connectors{display:flex;flex-direction:column;flex-shrink:0;width:14px;}
   .bkt-conn-pair{display:flex;flex-direction:column;}
-  .bkt-conn-top{flex:1;border-right:2px solid var(--border);border-bottom:2px solid var(--border);border-radius:0 0 4px 0;}
-  .bkt-conn-bot{flex:1;border-right:2px solid var(--border);border-radius:0 4px 0 0;}
+  .bkt-conn-top{flex:1;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+  .bkt-conn-bot{flex:1;border-right:1px solid var(--border);}
   body.ar .bkt-connectors{order:-1;}
-  body.ar .bkt-conn-top{border-right:none;border-left:2px solid var(--border);border-radius:0 0 0 4px;}
-  body.ar .bkt-conn-bot{border-right:none;border-left:2px solid var(--border);border-radius:4px 0 0 0;}
-  /* Champion column */
-  .bkt-champ-col{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:16px 8px;min-width:80px;gap:6px;}
-  .bkt-trophy{font-size:40px;text-align:center;}
-  .bkt-champ-flag{font-size:28px;text-align:center;}
-  .bkt-champ-name{font-size:11px;font-weight:800;color:var(--accent);text-align:center;max-width:72px;line-height:1.25;}
-  .bkt-champ-lbl{font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:center;}
-  body.ar .bkt-champ-lbl{letter-spacing:0;text-transform:none;font-size:9.5px;}
-  /* 3rd-place section */
-  .bkt-third-section{margin:20px 10px 0;border-top:1px solid var(--border);padding-top:16px;}
-  .bkt-third-hdr{font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;text-align:center;}
-  body.ar .bkt-third-hdr{letter-spacing:0;text-transform:none;font-size:11px;}
-  .bkt-third-card{max-width:220px;margin:0 auto;}
+  body.ar .bkt-conn-top{border-right:none;border-left:1px solid var(--border);}
+  body.ar .bkt-conn-bot{border-right:none;border-left:1px solid var(--border);}
+  /* Champion */
+  .bkt-champ-col{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:12px 6px;min-width:68px;gap:4px;}
+  .bkt-trophy{font-size:32px;}
+  .bkt-champ-flag{font-size:22px;}
+  .bkt-champ-name{font-size:10px;font-weight:700;color:var(--accent);text-align:center;max-width:64px;line-height:1.3;}
+  .bkt-champ-lbl{font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+  body.ar .bkt-champ-lbl{letter-spacing:0;text-transform:none;font-size:9px;}
+  /* 3rd place */
+  .bkt-third-section{display:flex;align-items:center;gap:12px;margin:18px 6px 0;padding-top:14px;border-top:1px solid var(--border);}
+  .bkt-third-hdr{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;flex-shrink:0;}
+  body.ar .bkt-third-hdr{letter-spacing:0;text-transform:none;font-size:10px;}
+  .bkt-third-card{width:148px;flex-shrink:0;}
   .ko-pill{border-color:rgba(201,162,39,.4);}
   @media(max-width:768px){
     .bracket-page{padding:12px 0 100px;}
-    .bkt-col{min-width:130px;}
-    .bkt-tname{max-width:68px;font-size:10.5px;}
-    .bkt-match-card{margin:0 6px;}
-    .bkt-col-label{margin:0 6px 8px;}
-  }
-  @media(max-width:480px){
-    .bkt-col{min-width:112px;}
-    .bkt-team{padding:6px 8px;min-height:32px;}
-    .bkt-flag{font-size:14px;}
-    .bkt-tname{max-width:56px;font-size:10px;}
+    .bkt-col{min-width:118px;}
+    .bkt-tname{font-size:10px;}
   }
 
   /* ── All-standings page ── */
@@ -1679,54 +1660,32 @@ function renderAll(doScroll){renderNav();renderSchedule(doScroll!==false);}
    KNOCKOUT BRACKET
 ═══════════════════════════════════════════════════════════ */
 
-function bktTeamRow(id, side) {
+function bktTeamRow(id, side, sc) {
   const t = T[lang];
   const team = koTeam(id, side);
+  const scoreVal = sc ? (side==='home' ? sc[0] : sc[1]) : null;
+  const won = sc && (side==='home' ? sc[0]>sc[1] : sc[1]>sc[0]);
+
   if (!team) {
     const m = KO_MATCHES.find(k => k.id === id);
     const isLoser = m?.round === '3rd';
     const srcId = isLoser
-      ? (side === 'home' ? m.src1l : m.src2l)
-      : (side === 'home' ? m?.src1  : m?.src2);
-    const lbl = srcId
-      ? (isLoser ? `${t.koLoserOf||'Loser'} M${srcId}` : `${t.koWinnerOf} M${srcId}`)
-      : t.koTBD;
-    return `<div class="bkt-team tbd"><span class="bkt-flag">❓</span><span class="bkt-tname">${lbl}</span></div>`;
+      ? (side==='home' ? m.src1l : m.src2l)
+      : (side==='home' ? m?.src1  : m?.src2);
+    const lbl = srcId ? `W${srcId}` : t.koTBD;
+    return `<div class="bkt-team tbd"><span class="bkt-flag" style="font-size:11px;opacity:.4">—</span><span class="bkt-tname">${lbl}</span></div>`;
   }
   const name = t.teams[team.name] || team.name;
-  const h = koTeam(id,'home'), a = koTeam(id,'away');
-  const sc = (h && a) ? getMatchScore({home:h.name, away:a.name}) : null;
-  const won = sc && (side==='home' ? sc[0]>sc[1] : sc[1]>sc[0]);
-  return `<div class="bkt-team${won?' bkt-winner':''}"><span class="bkt-flag">${team.flag}</span><span class="bkt-tname">${name}</span></div>`;
+  const scHtml = scoreVal !== null ? `<span class="bkt-sc">${scoreVal}</span>` : '';
+  return `<div class="bkt-team${won?' bkt-winner':''}"><span class="bkt-flag">${team.flag}</span><span class="bkt-tname">${name}</span>${scHtml}</div>`;
 }
 
 function bktMatchHTML(id, flexVal) {
-  const t = T[lang];
-  const m = KO_MATCHES.find(k => k.id === id);
   const h = koTeam(id,'home'), a = koTeam(id,'away');
   const sc = (h && a) ? getMatchScore({home:h.name, away:a.name}) : null;
-  const played = !!sc;
-
-  const scoreRow = sc
-    ? `<div class="bkt-score-row">
-        <span class="bkt-score-home">${sc[0]}</span>
-        <span class="bkt-score-sep">–</span>
-        <span class="bkt-score-away">${sc[1]}</span>
-        <span class="bkt-score-ft">${t.ft||'FT'}</span>
-       </div>`
-    : '';
-
-  const city = t.cities?.[m.city] || m.city || '';
-  const meta = `<div class="bkt-meta">${m.etDate} · ${city}</div>`;
-
-  return `<div class="bkt-slot" style="flex:${flexVal}">
-    <div class="bkt-match-card${played?' bkt-played':''}">
-      ${bktTeamRow(id,'home')}
-      ${bktTeamRow(id,'away')}
-      ${scoreRow}
-    </div>
-    ${meta}
-  </div>`;
+  return `<div class="bkt-slot" style="flex:${flexVal}"><div class="bkt-match-card">
+    ${bktTeamRow(id,'home',sc)}${bktTeamRow(id,'away',sc)}
+  </div></div>`;
 }
 
 function renderBracket() {
@@ -1734,11 +1693,11 @@ function renderBracket() {
   const page = document.getElementById('bracketView');
 
   const rounds = [
-    {label:t.bktR32||'R32', ids:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], flex:1},
-    {label:t.bktR16||'R16', ids:[17,18,19,20,21,22,23,24],                  flex:2},
-    {label:t.bktQF ||'QF',  ids:[25,26,27,28],                               flex:4},
-    {label:t.bktSF ||'SF',  ids:[29,30],                                     flex:8},
-    {label:t.bktF  ||'Final',ids:[32],                                       flex:16},
+    {label:t.bktR32||'R32',   ids:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], flex:1},
+    {label:t.bktR16||'R16',   ids:[17,18,19,20,21,22,23,24],                  flex:2},
+    {label:t.bktQF ||'QF',    ids:[25,26,27,28],                               flex:4},
+    {label:t.bktSF ||'SF',    ids:[29,30],                                     flex:8},
+    {label:t.bktF  ||'Final', ids:[32],                                        flex:16},
   ];
 
   let html = '<div class="bracket-page"><div class="bracket-wrap">';
@@ -1759,46 +1718,26 @@ function renderBracket() {
     }
   });
 
-  // Champion display
+  // Champion
   const champion = koWinner(32);
-  if (champion) {
-    const champName = t.teams[champion.name] || champion.name;
-    html += `<div class="bkt-champ-col">
-      <div class="bkt-champ-flag">${champion.flag}</div>
-      <div class="bkt-trophy">🏆</div>
-      <div class="bkt-champ-name">${champName}</div>
-      <div class="bkt-champ-lbl">${t.bktChamp||'Champion'}</div>
-    </div>`;
-  } else {
-    html += `<div class="bkt-champ-col">
-      <div class="bkt-trophy">🏆</div>
-      <div class="bkt-champ-lbl">${t.bktChamp||'Champion'}</div>
-    </div>`;
-  }
+  const champName = champion ? (t.teams[champion.name]||champion.name) : null;
+  html += `<div class="bkt-champ-col">
+    ${champion ? `<div class="bkt-champ-flag">${champion.flag}</div>` : ''}
+    <div class="bkt-trophy">🏆</div>
+    ${champName ? `<div class="bkt-champ-name">${champName}</div>` : ''}
+    <div class="bkt-champ-lbl">${t.bktChamp||'Champion'}</div>
+  </div></div>`;
 
-  html += '</div>';
-
-  // 3rd place match — separate row below the bracket
+  // 3rd place — inline row below bracket
   const m31 = KO_MATCHES.find(k => k.id === 31);
   const h3 = koTeam(31,'home'), a3 = koTeam(31,'away');
   const sc3 = (h3 && a3) ? getMatchScore({home:h3.name, away:a3.name}) : null;
   const thirdLbl = t.roundLabels?.['3rd'] || '3rd Place';
-  const city3 = t.cities?.[m31.city] || m31.city;
-  const score3 = sc3
-    ? `<div class="bkt-score-row">
-        <span class="bkt-score-home">${sc3[0]}</span>
-        <span class="bkt-score-sep">–</span>
-        <span class="bkt-score-away">${sc3[1]}</span>
-       </div>`
-    : '';
   html += `<div class="bkt-third-section">
-    <div class="bkt-third-hdr">🥉 ${thirdLbl}</div>
-    <div class="bkt-third-card bkt-match-card${sc3?' bkt-played':''}">
-      ${bktTeamRow(31,'home')}
-      ${bktTeamRow(31,'away')}
-      ${score3}
+    <div class="bkt-third-hdr">🥉 ${thirdLbl} · ${m31.etDate}</div>
+    <div class="bkt-third-card bkt-match-card">
+      ${bktTeamRow(31,'home',sc3)}${bktTeamRow(31,'away',sc3)}
     </div>
-    <div class="bkt-meta" style="max-width:220px;margin:3px auto 0">${m31.etDate} · ${city3}</div>
   </div>`;
 
   html += '</div>';
