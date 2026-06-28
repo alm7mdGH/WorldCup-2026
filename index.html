@@ -1682,12 +1682,20 @@ function bktTeamRow(id, side, sc) {
   return `<div class="bkt-team${won?' bkt-winner':''}"><span class="bkt-flag">${team.flag}</span><span class="bkt-tname">${name}</span>${scHtml}</div>`;
 }
 
+function localMatchTime(etDate, etTime) {
+  const utc = matchUTCMs(etDate, etTime);
+  const d = new Date(utc);
+  const dayStr = d.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+  const timeStr = d.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit'});
+  return `${dayStr} · ${timeStr}`;
+}
+
 function bktMatchHTML(id, flexVal, showMeta) {
   const m = KO_MATCHES.find(k => k.id === id);
   const h = koTeam(id,'home'), a = koTeam(id,'away');
   const sc = (h && a) ? getMatchScore({home:h.name, away:a.name}) : null;
   const metaHtml = showMeta
-    ? `<div class="bkt-card-meta">${m.etDate} · ${m.etTime}</div>`
+    ? `<div class="bkt-card-meta">${localMatchTime(m.etDate, m.etTime)}</div>`
     : '';
   return `<div class="bkt-slot" style="flex:${flexVal}"><div class="bkt-card-wrap">
     ${metaHtml}<div class="bkt-match-card">
