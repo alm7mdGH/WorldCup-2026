@@ -873,7 +873,7 @@ function getLiveScore(m){
 
 const CACHE_KEY = 'wc26_live_v3';
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
-const SCORE_CACHE_VERSION = 1; // bump this whenever score parsing logic changes
+const SCORE_CACHE_VERSION = 2; // bump this whenever score parsing logic changes
 
 // Map all known openfootball aliases → our canonical team names
 const TEAM_ALIASES = {
@@ -1128,6 +1128,7 @@ async function fetchAndUpdate(baseline) {
             const entry = JSON.parse(hit);
             if (entry.v === SCORE_CACHE_VERSION) {
               Object.assign(freshScores, entry.scores || {});
+              Object.assign(freshPenalties, entry.penalties || {});
               if (Object.keys(entry.scores || {}).length) gotData = true;
               continue; // served from cache, skip HTTP
             }
@@ -1155,7 +1156,7 @@ async function fetchAndUpdate(baseline) {
         if (!isToday) {
           const allPost = json.events.every(e => e.competitions?.[0]?.status?.type?.state === 'post');
           if (allPost && Object.keys(parsed.scores).length) {
-            try { localStorage.setItem(`wc26_d2_${dt}`, JSON.stringify({v: SCORE_CACHE_VERSION, scores: parsed.scores})); } catch(e) {}
+            try { localStorage.setItem(`wc26_d2_${dt}`, JSON.stringify({v: SCORE_CACHE_VERSION, scores: parsed.scores, penalties: parsed.penalties || {}})); } catch(e) {}
           }
         }
       } catch(e) {}
