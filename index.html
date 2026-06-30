@@ -208,6 +208,7 @@
   .bkt-pen-lbl{font-size:7.5px;font-weight:700;color:var(--accent);background:rgba(201,162,39,.15);border-radius:3px;padding:1px 3px;margin-left:3px;flex-shrink:0;}
   /* Left-side connectors (branches go right) */
   .bkt-connectors{display:flex;flex-direction:column;flex-shrink:0;width:12px;}
+  .bkt-conn-body{display:flex;flex-direction:column;flex:1;}
   .bkt-conn-pair{display:flex;flex-direction:column;}
   .bkt-conn-top{flex:1;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
   .bkt-conn-bot{flex:1;border-right:1px solid var(--border);}
@@ -1772,10 +1773,10 @@ function renderBracket() {
   }
 
   function bktConn(pairs, pairFlex) {
-    let h = '<div class="bkt-connectors">';
+    let h = '<div class="bkt-connectors"><div class="bkt-col-label" aria-hidden="true" style="visibility:hidden"></div><div class="bkt-conn-body">';
     for (let i = 0; i < pairs; i++)
       h += `<div class="bkt-conn-pair" style="flex:${pairFlex}"><div class="bkt-conn-top"></div><div class="bkt-conn-bot"></div></div>`;
-    return h + '</div>';
+    return h + '</div></div>';
   }
 
   const lbl = {
