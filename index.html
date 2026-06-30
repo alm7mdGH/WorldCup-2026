@@ -658,10 +658,10 @@ const KO_MATCHES = [
   // ── Round of 16 (Jul 4 – 7) ──
   {id:17,round:'R16',src1:1, src2:4, etDate:'Jul 4', etTime:'1:00 PM', city:'Houston',     c:'USA'},
   {id:18,round:'R16',src1:3, src2:5, etDate:'Jul 4', etTime:'5:00 PM', city:'Philadelphia',c:'USA'},
-  {id:19,round:'R16',src1:2, src2:6, etDate:'Jul 5', etTime:'4:00 PM', city:'New York',    c:'USA'},
-  {id:20,round:'R16',src1:7, src2:8, etDate:'Jul 5', etTime:'8:00 PM', city:'Mexico City', c:'MEX'},
+  {id:19,round:'R16',src1:2, src2:7, etDate:'Jul 5', etTime:'4:00 PM', city:'New York',    c:'USA'},
+  {id:20,round:'R16',src1:6, src2:9, etDate:'Jul 5', etTime:'8:00 PM', city:'Mexico City', c:'MEX'},
   {id:21,round:'R16',src1:11,src2:12,etDate:'Jul 6', etTime:'3:00 PM', city:'Dallas',      c:'USA'},
-  {id:22,round:'R16',src1:9, src2:10,etDate:'Jul 6', etTime:'8:00 PM', city:'Seattle',     c:'USA'},
+  {id:22,round:'R16',src1:10,src2:8, etDate:'Jul 6', etTime:'8:00 PM', city:'Seattle',     c:'USA'},
   {id:23,round:'R16',src1:14,src2:16,etDate:'Jul 7', etTime:'12:00 PM',city:'Atlanta',     c:'USA'},
   {id:24,round:'R16',src1:13,src2:15,etDate:'Jul 7', etTime:'4:00 PM', city:'Vancouver',   c:'CAN'},
   // ── Quarter-Finals (Jul 9 – 11) ──
@@ -1753,7 +1753,7 @@ function renderBracket() {
   // Two-sided bracket: left half flows R32→SF, right half flows SF→R32
   // Display order (top→bottom) chosen so connectors form a clean binary tree
   const L = {
-    r32: [1, 4, 3, 5, 11, 12, 9, 10],
+    r32: [1, 4, 3, 5, 11, 12, 10, 8],  // pairs: [1,4]→17, [3,5]→18, [11,12]→21, [10,8]→22
     r16: [17, 18, 21, 22],
     qf:  [25, 26],
     sf:  [29],
@@ -1762,7 +1762,7 @@ function renderBracket() {
     sf:  [30],
     qf:  [27, 28],
     r16: [19, 20, 23, 24],
-    r32: [2, 6, 7, 8, 14, 16, 13, 15],
+    r32: [2, 7, 6, 9, 14, 16, 13, 15], // pairs: [2,7]→19, [6,9]→20, [14,16]→23, [13,15]→24
   };
 
   function bktCol(label, ids, flex, meta, extraClass) {
