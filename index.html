@@ -663,8 +663,8 @@ const KO_MATCHES = [
   {id:20,round:'R16',src1:7, src2:8, etDate:'Jul 5', etTime:'8:00 PM', city:'Mexico City', c:'MEX'},
   {id:21,round:'R16',src1:11,src2:12,etDate:'Jul 6', etTime:'3:00 PM', city:'Dallas',      c:'USA'},
   {id:22,round:'R16',src1:9, src2:10,etDate:'Jul 6', etTime:'8:00 PM', city:'Seattle',     c:'USA'},
-  {id:23,round:'R16',src1:14,src2:16,etDate:'Jul 7', etTime:'12:00 PM',city:'Atlanta',     c:'USA'},
-  {id:24,round:'R16',src1:13,src2:15,etDate:'Jul 7', etTime:'4:00 PM', city:'Vancouver',   c:'CAN'},
+  {id:23,round:'R16',src1:14,src2:15,etDate:'Jul 7', etTime:'12:00 PM',city:'Atlanta',     c:'USA'},
+  {id:24,round:'R16',src1:13,src2:16,etDate:'Jul 7', etTime:'4:00 PM', city:'Vancouver',   c:'CAN'},
   // ── Quarter-Finals (Jul 9 – 11) ──
   {id:25,round:'QF', src1:17,src2:18,etDate:'Jul 9', etTime:'4:00 PM', city:'Boston',      c:'USA'},
   {id:26,round:'QF', src1:21,src2:22,etDate:'Jul 10',etTime:'3:00 PM', city:'Los Angeles', c:'USA'},
@@ -1763,7 +1763,7 @@ function renderBracket() {
     sf:  [30],
     qf:  [27, 28],
     r16: [19, 20, 23, 24],
-    r32: [2, 5, 7, 8, 14, 16, 13, 15], // pairs: [2,5]→19, [7,8]→20, [14,16]→23, [13,15]→24
+    r32: [2, 5, 7, 8, 14, 15, 13, 16], // pairs: [2,5]→19, [7,8]→20, [14,15]→23, [13,16]→24
   };
 
   function bktCol(label, ids, flex, meta, extraClass) {
