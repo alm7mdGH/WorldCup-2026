@@ -221,6 +221,7 @@
   .bkt-third-card{width:148px;flex-shrink:0;}
   .bkt-card-wrap{display:flex;flex-direction:column;flex:1;min-width:0;}
   .bkt-card-meta{text-align:center;font-size:9px;color:var(--muted);padding:0 6px 3px;white-space:nowrap;}
+  .bkt-pen-lbl{font-size:8px;font-weight:700;letter-spacing:.06em;color:var(--accent);background:rgba(201,162,39,.15);border-radius:3px;padding:1px 3px;margin-left:4px;flex-shrink:0;}
   .ko-pill{border-color:rgba(201,162,39,.4);}
   @media(max-width:768px){
     .bracket-page{padding:12px 0 100px;}
@@ -693,7 +694,14 @@ function koWinner(id) {
   if (!sc) return null;
   if (sc[0] > sc[1]) return h;
   if (sc[1] > sc[0]) return a;
-  return null; // draw (ET/penalties — ESPN will report winner score; treat draw as unresolved
+  // Drawn after ET — check penalty shootout winner (handle ESPN home/away reversal)
+  const k = scoreKey(h.name, a.name);
+  if (penaltyWinners[k] === 'home') return h;
+  if (penaltyWinners[k] === 'away') return a;
+  const kr = scoreKey(a.name, h.name);
+  if (penaltyWinners[kr] === 'home') return a; // ESPN's home is our away
+  if (penaltyWinners[kr] === 'away') return h; // ESPN's away is our home
+  return null;
 }
 
 /* Returns {name, flag} of loser of match id, or null */
@@ -706,6 +714,13 @@ function koLoser(id) {
   if (!sc) return null;
   if (sc[0] > sc[1]) return a;
   if (sc[1] > sc[0]) return h;
+  // Drawn after ET — loser is the non-penalty-winner
+  const k = scoreKey(h.name, a.name);
+  if (penaltyWinners[k] === 'home') return a;
+  if (penaltyWinners[k] === 'away') return h;
+  const kr = scoreKey(a.name, h.name);
+  if (penaltyWinners[kr] === 'home') return h;
+  if (penaltyWinners[kr] === 'away') return a;
   return null;
 }
 
@@ -843,6 +858,7 @@ function exportCalendar(){
 // liveInProgress: same key → [hg, ag] for currently playing matches
 let liveScores = {};
 let liveInProgress = {};
+let penaltyWinners = {}; // scoreKey → 'home'|'away' for matches decided by shootout
 let dataFreshness = 'loading'; // 'loading' | 'live' | 'stale' | 'failed'
 let liveUpdatedAt = null;
 
@@ -931,11 +947,12 @@ function parseOpenFootball(json) {
 function parseESPN(data) {
   const scores = {};
   const inProgress = {};
+  const penalties = {};
   const events = data.events || [];
   events.forEach(e => {
     const c = (e.competitions || [])[0];
     if (!c) return;
-    const state = (c.status?.type?.state || '').toLowerCase(); // pre/in/post
+    const state = (c.status?.type?.state || '').toLowerCase();
     if (state === 'pre') return;
     const finished = state === 'post';
     const live = state === 'in';
@@ -945,13 +962,22 @@ function parseESPN(data) {
     if (!home || !away) return;
     const h = home.team?.displayName || '';
     const a = away.team?.displayName || '';
-    const hs = home.score;
-    const as_ = away.score;
-    if (!h || !a || hs == null || as_ == null) return;
-    if (finished) scores[scoreKey(h, a)] = [parseInt(hs), parseInt(as_)];
-    else if (live) inProgress[scoreKey(h, a)] = [parseInt(hs), parseInt(as_)];
+    const hs = parseInt(home.score);
+    const as_ = parseInt(away.score);
+    if (!h || !a || isNaN(hs) || isNaN(as_)) return;
+    const k = scoreKey(h, a);
+    if (finished) {
+      scores[k] = [hs, as_];
+      // Detect penalty shootout winner via ESPN's winner boolean
+      if (hs === as_) {
+        if (home.winner === true) penalties[k] = 'home';
+        else if (away.winner === true) penalties[k] = 'away';
+      }
+    } else if (live) {
+      inProgress[k] = [hs, as_];
+    }
   });
-  return { scores, inProgress };
+  return { scores, inProgress, penalties };
 }
 
 /* Parse worldcup26.ir /get/games */
@@ -987,15 +1013,15 @@ function getCached() {
   try {
     const raw = sessionStorage.getItem(CACHE_KEY);
     if (!raw) return null;
-    const { ts, scores, inProgress } = JSON.parse(raw);
-    if (Date.now() - ts < CACHE_TTL) return { scores, inProgress: inProgress || {}, ts };
+    const { ts, scores, inProgress, penalties } = JSON.parse(raw);
+    if (Date.now() - ts < CACHE_TTL) return { scores, inProgress: inProgress || {}, penalties: penalties || {}, ts };
   } catch(e) {}
   return null;
 }
 
-function setCache(scores, inProgress) {
+function setCache(scores, inProgress, penalties) {
   try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), scores, inProgress: inProgress || {} }));
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), scores, inProgress: inProgress || {}, penalties: penalties || {} }));
   } catch(e) {}
 }
 
@@ -1057,6 +1083,7 @@ async function fetchLiveScores() {
   if (cached) {
     applyScores(mergeScores(baseline, cached.scores));
     liveInProgress = cached.inProgress;
+    penaltyWinners = cached.penalties || {};
     dataFreshness = 'stale';
     liveUpdatedAt = cached.ts;
     updateLiveIndicator();
@@ -1077,6 +1104,7 @@ async function fetchAndUpdate(baseline) {
   _lastFetchTs = Date.now();
   const freshScores = {};
   const freshInProgress = {};
+  const freshPenalties = {};
   let gotData = false;
   const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=';
 
@@ -1122,6 +1150,7 @@ async function fetchAndUpdate(baseline) {
         const parsed = parseESPN(json);
         Object.assign(freshScores, parsed.scores);
         Object.assign(freshInProgress, parsed.inProgress);
+        Object.assign(freshPenalties, parsed.penalties || {});
         gotData = true;
         if (!isToday) {
           const allPost = json.events.every(e => e.competitions?.[0]?.status?.type?.state === 'post');
@@ -1152,10 +1181,11 @@ async function fetchAndUpdate(baseline) {
 
   if (gotData) {
     const merged = mergeScores(baseline, freshScores);
-    setCache(freshScores, freshInProgress);
+    setCache(freshScores, freshInProgress, freshPenalties);
     savePersistentScores(freshScores); // update last-known-good snapshot
     liveScores = merged;
     liveInProgress = freshInProgress;
+    penaltyWinners = freshPenalties;
     dataFreshness = 'live';
     liveUpdatedAt = Date.now();
   } else {
@@ -1662,11 +1692,15 @@ function renderAll(doScroll){renderNav();renderSchedule(doScroll!==false);}
    KNOCKOUT BRACKET
 ═══════════════════════════════════════════════════════════ */
 
-function bktTeamRow(id, side, sc) {
+function bktTeamRow(id, side, sc, isPen) {
   const t = T[lang];
   const team = koTeam(id, side);
   const scoreVal = sc ? (side==='home' ? sc[0] : sc[1]) : null;
-  const won = sc && (side==='home' ? sc[0]>sc[1] : sc[1]>sc[0]);
+  const winner = isPen ? koWinner(id) : null;
+  const won = isPen
+    ? (winner && team && winner.name === team.name)
+    : (sc && (side==='home' ? sc[0]>sc[1] : sc[1]>sc[0]));
+  const penLbl = isPen && won ? `<span class="bkt-pen-lbl">PEN</span>` : '';
 
   if (!team) {
     const m = KO_MATCHES.find(k => k.id === id);
@@ -1679,7 +1713,7 @@ function bktTeamRow(id, side, sc) {
   }
   const name = t.teams[team.name] || team.name;
   const scHtml = scoreVal !== null ? `<span class="bkt-sc">${scoreVal}</span>` : '';
-  return `<div class="bkt-team${won?' bkt-winner':''}"><span class="bkt-flag">${team.flag}</span><span class="bkt-tname">${name}</span>${scHtml}</div>`;
+  return `<div class="bkt-team${won?' bkt-winner':''}"><span class="bkt-flag">${team.flag}</span><span class="bkt-tname">${name}</span>${scHtml}${penLbl}</div>`;
 }
 
 function localMatchTime(etDate, etTime) {
@@ -1694,12 +1728,13 @@ function bktMatchHTML(id, flexVal, showMeta) {
   const m = KO_MATCHES.find(k => k.id === id);
   const h = koTeam(id,'home'), a = koTeam(id,'away');
   const sc = (h && a) ? getMatchScore({home:h.name, away:a.name}) : null;
+  const isPen = sc && sc[0] === sc[1] && !!koWinner(id);
   const metaHtml = showMeta
     ? `<div class="bkt-card-meta">${localMatchTime(m.etDate, m.etTime)}</div>`
     : '';
   return `<div class="bkt-slot" style="flex:${flexVal}"><div class="bkt-card-wrap">
     ${metaHtml}<div class="bkt-match-card">
-    ${bktTeamRow(id,'home',sc)}${bktTeamRow(id,'away',sc)}
+    ${bktTeamRow(id,'home',sc,isPen)}${bktTeamRow(id,'away',sc,isPen)}
   </div></div></div>`;
 }
 
